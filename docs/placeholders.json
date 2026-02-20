@@ -23,15 +23,27 @@
     {
       "label": "Inner IPs — XC Side",
       "keys": [
-        "XC_C1_T1_INNER_V4", "XC_C2_T1_INNER_V4", "XC_C1_T2_INNER_V4", "XC_C2_T2_INNER_V4",
-        "XC_C1_T1_INNER_V6", "XC_C2_T1_INNER_V6", "XC_C1_T2_INNER_V6", "XC_C2_T2_INNER_V6"
+        "XC_C1_T1_INNER_V4",
+        "XC_C2_T1_INNER_V4",
+        "XC_C1_T2_INNER_V4",
+        "XC_C2_T2_INNER_V4",
+        "XC_C1_T1_INNER_V6",
+        "XC_C2_T1_INNER_V6",
+        "XC_C1_T2_INNER_V6",
+        "XC_C2_T2_INNER_V6"
       ]
     },
     {
       "label": "Inner IPs — BIG-IP Side",
       "keys": [
-        "BIGIP_C1_T1_INNER_V4", "BIGIP_C2_T1_INNER_V4", "BIGIP_C1_T2_INNER_V4", "BIGIP_C2_T2_INNER_V4",
-        "BIGIP_C1_T1_INNER_V6", "BIGIP_C2_T1_INNER_V6", "BIGIP_C1_T2_INNER_V6", "BIGIP_C2_T2_INNER_V6"
+        "BIGIP_C1_T1_INNER_V4",
+        "BIGIP_C2_T1_INNER_V4",
+        "BIGIP_C1_T2_INNER_V4",
+        "BIGIP_C2_T2_INNER_V4",
+        "BIGIP_C1_T1_INNER_V6",
+        "BIGIP_C2_T1_INNER_V6",
+        "BIGIP_C1_T2_INNER_V6",
+        "BIGIP_C2_T2_INNER_V6"
       ]
     }
   ],
@@ -209,12 +221,7 @@
       "type": "dropdown",
       "default": "/24 (256 IPs)",
       "description": "DDoS-protected IPv4 prefix length",
-      "options": [
-        "/24 (256 IPs)",
-        "/23 (512 IPs)",
-        "/22 (1024 IPs)",
-        "/21 (2048 IPs)"
-      ]
+      "options": ["/24 (256 IPs)", "/23 (512 IPs)", "/22 (1024 IPs)", "/21 (2048 IPs)"]
     },
     "PROTECTED_NET_V4": {
       "type": "text",
