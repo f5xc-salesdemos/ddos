@@ -1,0 +1,11 @@
+{
+  "customSets": [
+    {
+      "label": "Configuration",
+      "description": "DDoS protection setup — cloud, BigIP, protected prefix configuration",
+      "paths": ["*-configuration*", "protected-prefix*"]
+    }
+  ],
+  "promote": ["index*", "overview*", "topology*"],
+  "demote": ["references*"]
+}
