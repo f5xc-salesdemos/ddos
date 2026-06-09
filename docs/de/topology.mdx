@@ -13,7 +13,7 @@ i18n:
 ## Topologie und Adressen
 
 Konfiguration für das **xDC_NAMEx**-Rechenzentrum
-mit Verbindung zu Cloud-Scrubbing-Centern.
+mit Verbindung zu Cloud-Scrubbing-Zentren.
 
 :::note
 **Dies sind Beispielwerte.** Ersetzen Sie diese durch kundenspezifische und
@@ -26,7 +26,7 @@ Peering) kann RFC-1918-Endpunkte ermöglichen. Siehe
 [K000147949](https://my.f5.com/manage/s/article/K000147949) für Beispiele mit korrekten Dokumentationsadressen.
 
 Erstellen Sie für Redundanz **2 Tunnel pro BIG-IP-Einheit** zu verschiedenen
-geografisch verteilten Scrubbing-Centern (insgesamt 4 Tunnel für ein HA-Paar).
+geografisch verteilten Scrubbing-Zentren (insgesamt 4 Tunnel für ein HA-Paar).
 :::
 
 ```mermaid
@@ -112,15 +112,15 @@ Verwenden Sie die folgenden XC- und BIG-IP-Arbeitsblätter als Referenz beim Ers
 
 :::note[Innere (Transit-)IPs]
 Innere IPs wie `10.10.10.0/30` verwenden RFC-1918-Adressen. Dies ist
-korrekt, da sie innerhalb des GRE-Tunnels gekapselt sind und niemals
+korrekt, da sie innerhalb des GRE-Tunnels gekapselt sind und nie
 im öffentlichen Internet erscheinen. Geschützte Präfixe müssen immer
 öffentlich routbar sein; äußere Endpunkt-IPs müssen öffentlich routbar sein, wenn
 die Tunnel über das öffentliche Internet verlaufen.
 :::
 
-:::note[Innere IPv6-Links]
-Innere IPv6-Links verwenden hier /64-Präfixe, um den gängigen
-Cloud-Standardeinstellungen zu entsprechen. Für Punkt-zu-Punkt-Verbindungen wird /127 gemäß
+:::note[Innere IPv6-Verbindungen]
+Innere IPv6-Verbindungen verwenden hier /64-Präfixe, um gängigen
+Cloud-Standardwerten zu entsprechen. Für Punkt-zu-Punkt-Verbindungen ist /127 gemäß
 [RFC 6164](https://datatracker.ietf.org/doc/html/rfc6164) bevorzugt, um Neighbor-Discovery-Erschöpfung zu vermeiden. Verwenden Sie /127,
 wenn die SOC-Tunnel-Zuweisung dies unterstützt.
 :::
@@ -163,7 +163,7 @@ wenn die SOC-Tunnel-Zuweisung dies unterstützt.
     - IPv4: `xBIGIP_C2_T2_INNER_V4x/30`
     - IPv6: `xBIGIP_C2_T2_INNER_V6x/64`
 
-- Geschützte Präfixe (an die Cloud angekündigt):
+- Geschützte Präfixe (an Cloud annonciert):
     - IPv4: `xPROTECTED_NET_V4xxPROTECTED_CIDR_V4x`
     - IPv6: `xPROTECTED_PREFIX_V6x`
 

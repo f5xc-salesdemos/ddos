@@ -79,14 +79,14 @@ show ipv6 route
 :::caution[Lista de verificación para solución de problemas]
 Si BGP no se establece:
 
-1. Verifique que el túnel GRE esté activo: `show net tunnels tunnel` debe
+1. Verifique que el túnel GRE esté activo: `show net tunnels tunnel` debería
    mostrar el estado `up`.
 1. Confirme que `allow-service` incluye `tcp:179` en la self IP interna.
 1. Haga ping a la IP interna remota a través del túnel.
 1. Verifique que la contraseña BGP coincida en ambos lados (causa común de
    errores `NOTIFICATION`).
 1. Verifique que los prefix-lists y route-maps estén aplicados correctamente.
-1. Consulte `show ip bgp neighbors <IP>` para ver el último error o motivo
+1. Revise `show ip bgp neighbors <IP>` para conocer el último error o razón
    de reinicio.
 1. En cada unidad HA, verifique que los túneles propios de la unidad estén activos y que
    sus propios vecinos BGP estén configurados (no los de la otra unidad).
@@ -97,6 +97,6 @@ Si BGP no se establece:
 Navegue a **DDoS and Transit Services >
 [DDoS Protection > Visibility](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)** para ver:
 
-- Tráfico por red, zona y aplicación.
+- Tráfico por red, zona, aplicación.
 - Tráfico bloqueado vs. permitido.
 - Detalles de ataques y acciones de depuración.

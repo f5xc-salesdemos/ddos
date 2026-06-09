@@ -13,21 +13,21 @@ i18n:
 ## Topología y direcciones
 
 Configuración para el centro de datos **xDC_NAMEx**
-conectándose a los centros de limpieza en la nube.
+que se conecta a los centros de depuración en la nube.
 
 :::note
-**Estos son valores de ejemplo.** Reemplácelos con valores específicos del cliente y
-proporcionados por el SOC utilizando las tablas anteriores.
+**Estos son valores de ejemplo.** Reemplácelos con los valores específicos del cliente y
+los proporcionados por el SOC utilizando las tablas anteriores.
 
 Los prefijos protegidos **deben ser enrutables públicamente** (no RFC 1918).
-Las IPs de los endpoints externos del GRE también deben ser enrutables públicamente cuando los túneles
+Las IPs de los endpoints externos GRE también deben ser enrutables públicamente cuando los túneles
 atraviesan la Internet pública; la conectividad privada (L2, peering
 privado) puede permitir endpoints RFC 1918. Consulte
-[K000147949](https://my.f5.com/manage/s/article/K000147949) para ejemplos utilizando direcciones de documentación
-apropiadas.
+[K000147949](https://my.f5.com/manage/s/article/K000147949) para ejemplos usando direcciones
+de documentación apropiadas.
 
 Para redundancia, cree **2 túneles por unidad BIG-IP** hacia diferentes
-centros de limpieza geo-localizados (4 túneles en total para un par HA).
+centros de depuración geo-localizados (4 túneles en total para un par HA).
 :::
 
 ```mermaid
@@ -65,49 +65,49 @@ Utilice las siguientes hojas de trabajo de XC y BIG-IP como referencia al constr
 
 **Túnel C1-T1 — Centro 1 a BIG-IP-A:**
 
-- IPs externas del GRE (para endpoints del túnel):
+- IPs externas GRE (para endpoints del túnel):
     - IPv4 SRC: `xXC_C1_OUTER_V4x/24`
     - IPv4 DST: `xBIGIP_A_OUTER_V4x/24`
     - IPv6 SRC: `xXC_C1_OUTER_V6x/64`
     - IPv6 DST: `xBIGIP_A_OUTER_V6x/64`
 
-- IPs internas del GRE (para sesión BGP):
+- IPs internas GRE (para sesión BGP):
     - IPv4: `xXC_C1_T1_INNER_V4x/30`
     - IPv6: `xXC_C1_T1_INNER_V6x/64`
 
 **Túnel C1-T2 — Centro 1 a BIG-IP-B:**
 
-- IPs externas del GRE (para endpoints del túnel):
+- IPs externas GRE (para endpoints del túnel):
     - IPv4 SRC: `xXC_C1_OUTER_V4x/24`
     - IPv4 DST: `xBIGIP_B_OUTER_V4x/24`
     - IPv6 SRC: `xXC_C1_OUTER_V6x/64`
     - IPv6 DST: `xBIGIP_B_OUTER_V6x/64`
 
-- IPs internas del GRE (para sesión BGP):
+- IPs internas GRE (para sesión BGP):
     - IPv4: `xXC_C1_T2_INNER_V4x/30`
     - IPv6: `xXC_C1_T2_INNER_V6x/64`
 
 **Túnel C2-T1 — Centro 2 a BIG-IP-A:**
 
-- IPs externas del GRE (para endpoints del túnel):
+- IPs externas GRE (para endpoints del túnel):
     - IPv4 SRC: `xXC_C2_OUTER_V4x/24`
     - IPv4 DST: `xBIGIP_A_OUTER_V4x/24`
     - IPv6 SRC: `xXC_C2_OUTER_V6x/64`
     - IPv6 DST: `xBIGIP_A_OUTER_V6x/64`
 
-- IPs internas del GRE (para sesión BGP):
+- IPs internas GRE (para sesión BGP):
     - IPv4: `xXC_C2_T1_INNER_V4x/30`
     - IPv6: `xXC_C2_T1_INNER_V6x/64`
 
 **Túnel C2-T2 — Centro 2 a BIG-IP-B:**
 
-- IPs externas del GRE (para endpoints del túnel):
+- IPs externas GRE (para endpoints del túnel):
     - IPv4 SRC: `xXC_C2_OUTER_V4x/24`
     - IPv4 DST: `xBIGIP_B_OUTER_V4x/24`
     - IPv6 SRC: `xXC_C2_OUTER_V6x/64`
     - IPv6 DST: `xBIGIP_B_OUTER_V6x/64`
 
-- IPs internas del GRE (para sesión BGP):
+- IPs internas GRE (para sesión BGP):
     - IPv4: `xXC_C2_T2_INNER_V4x/30`
     - IPv6: `xXC_C2_T2_INNER_V6x/64`
 
@@ -120,17 +120,17 @@ los túneles atraviesan la Internet pública.
 :::
 
 :::note[Enlaces internos IPv6]
-Los enlaces internos IPv6 utilizan prefijos /64 aquí para coincidir con los valores predeterminados
-comunes de la nube. Para enlaces punto a punto, se prefiere /127 según
+Los enlaces internos IPv6 utilizan prefijos /64 aquí para coincidir con los valores
+predeterminados comunes de la nube. Para enlaces punto a punto, se prefiere /127 según
 [RFC 6164](https://datatracker.ietf.org/doc/html/rfc6164) para evitar el agotamiento de descubrimiento de vecinos. Utilice /127
-si la asignación del túnel del SOC lo permite.
+si la asignación de túnel del SOC lo admite.
 :::
 
 ### BIG-IP
 
 **BIG-IP-A** (IP externa `xBIGIP_A_OUTER_V4x` / `xBIGIP_A_OUTER_V6x`):
 
-- IPs externas del GRE:
+- IPs externas GRE:
     - IPv4 SRC: `xBIGIP_A_OUTER_V4x/24`
     - IPv4 DST (Centro 1): `xXC_C1_OUTER_V4x/24`
     - IPv4 DST (Centro 2): `xXC_C2_OUTER_V4x/24`
@@ -138,17 +138,17 @@ si la asignación del túnel del SOC lo permite.
     - IPv6 DST (Centro 1): `xXC_C1_OUTER_V6x/64`
     - IPv6 DST (Centro 2): `xXC_C2_OUTER_V6x/64`
 
-- IPs internas del GRE — Túnel C1-T1:
+- IPs internas GRE — Túnel C1-T1:
     - IPv4: `xBIGIP_C1_T1_INNER_V4x/30`
     - IPv6: `xBIGIP_C1_T1_INNER_V6x/64`
 
-- IPs internas del GRE — Túnel C2-T1:
+- IPs internas GRE — Túnel C2-T1:
     - IPv4: `xBIGIP_C2_T1_INNER_V4x/30`
     - IPv6: `xBIGIP_C2_T1_INNER_V6x/64`
 
 **BIG-IP-B** (IP externa `xBIGIP_B_OUTER_V4x` / `xBIGIP_B_OUTER_V6x`):
 
-- IPs externas del GRE:
+- IPs externas GRE:
     - IPv4 SRC: `xBIGIP_B_OUTER_V4x/24`
     - IPv4 DST (Centro 1): `xXC_C1_OUTER_V4x/24`
     - IPv4 DST (Centro 2): `xXC_C2_OUTER_V4x/24`
@@ -156,11 +156,11 @@ si la asignación del túnel del SOC lo permite.
     - IPv6 DST (Centro 1): `xXC_C1_OUTER_V6x/64`
     - IPv6 DST (Centro 2): `xXC_C2_OUTER_V6x/64`
 
-- IPs internas del GRE — Túnel C1-T2:
+- IPs internas GRE — Túnel C1-T2:
     - IPv4: `xBIGIP_C1_T2_INNER_V4x/30`
     - IPv6: `xBIGIP_C1_T2_INNER_V6x/64`
 
-- IPs internas del GRE — Túnel C2-T2:
+- IPs internas GRE — Túnel C2-T2:
     - IPv4: `xBIGIP_C2_T2_INNER_V4x/30`
     - IPv6: `xBIGIP_C2_T2_INNER_V6x/64`
 

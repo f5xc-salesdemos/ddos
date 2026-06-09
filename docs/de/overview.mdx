@@ -12,49 +12,49 @@ i18n:
 
 ## Cloud GRE/BGP BIG-IP
 
-- Konfiguration von **GRE-Tunneln** und **BGP-Peering** von einem BIG-IP-HA-Paar
-  (als Customer Premises Equipment, CPE fungierend) mit unabhängigen
+- Konfigurieren Sie **GRE-Tunnel** und **BGP-Peering** von einem BIG-IP-HA-Paar
+  (als Customer Premises Equipment, CPE fungierend), mit unabhängigen
   Tunneln pro Einheit.
-- Verbindung zum **Cloud DDoS Mitigation**-Scrubbing-Center
+- Verbindung zu den **Cloud DDoS Mitigation**-Scrubbing-Centern
   im **Routed Mode** (L3/L4).
 
 ```mermaid
 flowchart LR
-    INET["Internet<br/>Inbound Traffic"]
+    INET["Internet<br/>Eingehender Datenverkehr"]
 
     subgraph XC["F5 Distributed Cloud<br/>Global Anycast"]
-        SCRUB["DDoS Scrubbing<br/>L3/L4 Mitigation"]
-        DROP["Attack Traffic<br/>Dropped"]
+        SCRUB["DDoS-Scrubbing<br/>L3/L4-Mitigation"]
+        DROP["Angriffsverkehr<br/>Verworfen"]
     end
 
-    subgraph DC["xDC_NAMEx Data Center"]
-        BIGIP["BIG-IP CPE<br/>(GRE endpoint)"]
-        SERVERS["DDoS-Protected Servers<br/><i>Your public IP block</i>"]
+    subgraph DC["xDC_NAMEx Rechenzentrum"]
+        BIGIP["BIG-IP CPE<br/>(GRE-Endpunkt)"]
+        SERVERS["DDoS-geschützte Server<br/><i>Ihr öffentlicher IP-Block</i>"]
     end
 
-    INET -->|"all traffic to your<br/>public IPs"| SCRUB
-    SCRUB -->|"clean traffic"| BIGIP
-    SCRUB -.->|"malicious traffic"| DROP
+    INET -->|"gesamter Datenverkehr zu Ihren<br/>öffentlichen IPs"| SCRUB
+    SCRUB -->|"bereinigter Datenverkehr"| BIGIP
+    SCRUB -.->|"bösartiger Datenverkehr"| DROP
     BIGIP --> SERVERS
     SERVERS --> BIGIP
-    BIGIP -.->|"return traffic<br/>via ISP uplink<br/>(asymmetric path)"| INET
+    BIGIP -.->|"Rückverkehr<br/>über ISP-Uplink<br/>(asymmetrischer Pfad)"| INET
 
     style SERVERS fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```
 
-## Voraussetzungen
+## Anforderungen
 
 - Cloud **L3/L4 Routed DDoS Mitigation**-Dienst
-  (Always On oder Always Available) für Ihren Tenant aktiviert.
+  (Always On oder Always Available), für Ihren Tenant aktiviert.
 - BIG-IP mit:
     - LTM (oder gleichwertige Netzwerkmodule).
-    - **Dynamic Routing (BGP)** lizenziert und aktiviert.
+    - **Dynamisches Routing (BGP)** lizenziert und aktiviert.
 - Routed Mode: mindestens ein **öffentlich angekündigtes /24 (oder kürzeres)**
   Präfix zum Schutz (IPv6 Minimum ist **/48**).
     - Geschützte Präfixe **müssen öffentlich routbar sein** (nicht RFC 1918).
-     Die äußeren GRE-Endpunkte müssen ebenfalls öffentlich routbar sein, wenn die Tunnel
-     das öffentliche Internet durchqueren; Deployments mit privater
-     Konnektivität (L2, privates Peering) können RFC-1918-Endpunktadressen
+     Äußere GRE-Endpunkte müssen ebenfalls öffentlich routbar sein, wenn die Tunnel
+     über das öffentliche Internet verlaufen; Bereitstellungen mit privater
+     Konnektivität (L2, privates Peering) können RFC 1918-Endpunktadressen
      verwenden.
 - Konnektivität zwischen Ihrem Rechenzentrum/Router und dem/den
   Cloud-Scrubbing-Center(n).
@@ -68,21 +68,21 @@ Scrubbing-Center:
 ```mermaid
 flowchart LR
     subgraph F5XC["F5 Distributed Cloud"]
-        C1["xCENTER_1x scrubbing center"]
-        C2["xCENTER_2x scrubbing center"]
+        C1["xCENTER_1x Scrubbing-Center"]
+        C2["xCENTER_2x Scrubbing-Center"]
     end
 
-    subgraph DC["xDC_NAMEx Data Center"]
+    subgraph DC["xDC_NAMEx Rechenzentrum"]
         direction TB
         subgraph UNITA["BIG-IP-A (Active)"]
-            A_C1["C1-T1 tunnel<br/>BGP Established"]
-            A_C2["C2-T1 tunnel<br/>BGP Established"]
+            A_C1["C1-T1 Tunnel<br/>BGP Established"]
+            A_C2["C2-T1 Tunnel<br/>BGP Established"]
         end
         subgraph UNITB["BIG-IP-B (Standby)"]
-            B_C1["C1-T2 tunnel<br/>Graceful-Restart Ready"]
-            B_C2["C2-T2 tunnel<br/>Graceful-Restart Ready"]
+            B_C1["C1-T2 Tunnel<br/>Graceful-Restart Ready"]
+            B_C2["C2-T2 Tunnel<br/>Graceful-Restart Ready"]
         end
-        SERVERS["DDoS-Protected Servers"]
+        SERVERS["DDoS-geschützte Server"]
     end
 
     C1 -- "GRE C1-T1" --> A_C1
@@ -102,13 +102,13 @@ flowchart LR
   die Abhängigkeit von einer Floating-IP für das Tunnel-Sourcing.
 - **Unabhängige BGP-Sessions**: Jede Einheit betreibt ihre eigenen BGP-Sessions
   über ihre eigenen Tunnel. BIG-IP-A peert mit C1-T1 und C2-T1;
-  BIG-IP-B peert mit C1-T2 und C2-T2. Bei einem Failover sind die BGP-Sessions
-  der Standby-Einheit bereits aufgebaut, sodass die
+  BIG-IP-B peert mit C1-T2 und C2-T2. Bei einem Failover sind die
+  BGP-Sessions der Standby-Einheit bereits aufgebaut, sodass die
   Cloud den Datenverkehr sofort umleiten kann.
 - **Config Sync**: Tunnel-, Self-IP- und Routing-Konfigurationen werden
-  zwischen den Einheiten über **Config-Sync** synchronisiert. Da die `imish`-
-  BGP-Konfiguration pro Einheit erfolgt, pflegt jede Einheit ihre eigenen
-  Neighbor-Statements. Stellen Sie sicher, dass die Synchronisierung alle tmsh-Objekte umfasst.
+  zwischen den Einheiten über **config-sync** synchronisiert. Da die `imish`-
+  BGP-Konfiguration pro Einheit ist, pflegt jede Einheit ihre eigenen
+  Neighbor-Statements. Überprüfen Sie, dass die Synchronisierung alle tmsh-Objekte umfasst.
 - **Active/Standby-BGP-Verhalten**: Die aktive Einheit kündigt
   geschützte Präfixe mit normalen BGP-Attributen an. Die Standby-Einheit
   kann entweder dieselben Präfixe mit einem längeren AS-Path-Prepend
@@ -116,14 +116,14 @@ flowchart LR
   bis zum Failover unterdrücken. Stimmen Sie den Ansatz mit dem SOC ab.
 - **Failover-Konvergenz**: Mit aktiviertem `graceful-restart` und
   unabhängigen Tunneln hat die neue aktive Einheit bereits aufgebaute
-  BGP-Sessions. Die Konvergenz hängt davon ab, wie schnell die BGP-Best-Path-Auswahl
+  BGP-Sessions. Die Konvergenz hängt davon ab, wie die BGP-Best-Path-Auswahl
   auf die Ankündigungen der neu aktiven Einheit umschaltet. Testen Sie mit
   `run sys failover standby`.
 
 :::note
 Das oben beschriebene HA-Modell mit unabhängigen Tunneln ist der empfohlene Ansatz
 für kundenseitige Geräte-Redundanz. Validieren Sie Ihr spezifisches
-Failover-Design mit Ihrem Account-Team, bevor Sie in Produktion gehen,
-insbesondere hinsichtlich der AS-Path-Prepend-Strategie und des
+Failover-Design mit Ihrem Account-Team, bevor Sie in die
+Produktion gehen, insbesondere hinsichtlich der AS-Path-Prepend-Strategie und des
 BGP-Rekonvergenz-Timings.
 :::

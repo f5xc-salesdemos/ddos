@@ -1,5 +1,5 @@
 ---
-title: Verification
+title: Verifica
 description: >-
   Verificare la configurazione del tunnel GRE e del BGP su BIG-IP e risolvere i
   problemi comuni.
@@ -82,19 +82,19 @@ Se il BGP non si stabilisce:
 1. Verificare che il tunnel GRE sia attivo: `show net tunnels tunnel` dovrebbe
    mostrare lo stato `up`.
 1. Confermare che `allow-service` includa `tcp:179` sul self IP interno.
-1. Eseguire un ping dell'IP interno remoto attraverso il tunnel.
-1. Controllare che la password BGP corrisponda su entrambi i lati (causa comune
-   di errori `NOTIFICATION`).
-1. Verificare che prefix-list e route-map siano applicati correttamente.
+1. Eseguire il ping dell'IP interno remoto attraverso il tunnel.
+1. Verificare che la password BGP corrisponda su entrambi i lati (causa comune
+   degli errori `NOTIFICATION`).
+1. Verificare che le prefix-list e le route-map siano applicate correttamente.
 1. Controllare `show ip bgp neighbors <IP>` per l'ultimo errore/motivo
    di reset.
 1. Su ciascuna unità HA, verificare che i tunnel dell'unità stessa siano attivi e che
-   i propri neighbor BGP siano configurati (non quelli dell'altra unità).
+   i suoi neighbor BGP siano configurati (non quelli dell'altra unità).
 :::
 
 ### Console XC
 
-Navigare in **DDoS and Transit Services >
+Navigare su **DDoS and Transit Services >
 [DDoS Protection > Visibility](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)** per visualizzare:
 
 - Traffico per rete, zona, applicazione.

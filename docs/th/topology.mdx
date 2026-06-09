@@ -1,8 +1,6 @@
 ---
 title: โทโพโลยีและเวิร์กชีต
-description: >-
-  ไดอะแกรมโทโพโลยีเครือข่ายและเวิร์กชีตการกำหนด IP address สำหรับการกำหนดค่า GRE
-  tunnel
+description: ไดอะแกรมโทโพโลยีเครือข่ายและเวิร์กชีตการกำหนด IP สำหรับการกำหนดค่า GRE tunnel
 sidebar:
   order: 3
 i18n:
@@ -12,21 +10,21 @@ i18n:
 
 ## โทโพโลยีและที่อยู่
 
-การกำหนดค่าสำหรับดาต้าเซ็นเตอร์ **xDC_NAMEx**
-ที่เชื่อมต่อกับศูนย์ scrubbing บนคลาวด์
+การกำหนดค่าสำหรับศูนย์ข้อมูล **xDC_NAMEx**
+ที่เชื่อมต่อกับศูนย์กรองทราฟฟิก (scrubbing centers) บนคลาวด์
 
 :::note
 **ค่าเหล่านี้เป็นตัวอย่างเท่านั้น** ให้แทนที่ด้วยค่าเฉพาะของลูกค้าและ
-ค่าที่ SOC จัดเตรียมให้โดยใช้ตารางด้านบน
+ค่าที่ SOC ให้มาโดยใช้ตารางด้านบน
 
-Protected prefixes **ต้องสามารถ route ได้แบบสาธารณะ** (ไม่ใช่ RFC 1918)
-IP ของ GRE outer endpoint ต้องสามารถ route ได้แบบสาธารณะเช่นกันเมื่อ tunnel
-ผ่านอินเทอร์เน็ตสาธารณะ การเชื่อมต่อแบบส่วนตัว (L2, private
-peering) อาจอนุญาตให้ใช้ endpoint แบบ RFC 1918 ได้ ดู
-[K000147949](https://my.f5.com/manage/s/article/K000147949) สำหรับตัวอย่างการใช้ที่อยู่เอกสารอ้างอิงที่ถูกต้อง
+พรีฟิกซ์ที่ต้องการป้องกัน **ต้องสามารถเราต์ได้แบบสาธารณะ** (ไม่ใช่ RFC 1918)
+IP ปลายทาง GRE ภายนอกต้องสามารถเราต์ได้แบบสาธารณะเช่นกันเมื่อ tunnel
+ผ่านอินเทอร์เน็ตสาธารณะ; การเชื่อมต่อแบบส่วนตัว (L2, private
+peering) อาจอนุญาตให้ใช้ endpoint ที่เป็น RFC 1918 ได้ ดู
+[K000147949](https://my.f5.com/manage/s/article/K000147949) สำหรับตัวอย่างการใช้ที่อยู่สำหรับเอกสารที่ถูกต้อง
 
-เพื่อความซ้ำซ้อน ให้สร้าง **tunnel 2 อันต่อ BIG-IP หนึ่งหน่วย** ไปยังศูนย์ scrubbing
-ที่อยู่คนละพื้นที่ทางภูมิศาสตร์ (รวม 4 tunnel สำหรับคู่ HA)
+เพื่อความสำรอง ให้สร้าง **tunnel 2 อันต่อ BIG-IP แต่ละยูนิต** ไปยัง
+ศูนย์กรองทราฟฟิกที่อยู่คนละพื้นที่ทางภูมิศาสตร์ (รวม 4 tunnel สำหรับคู่ HA)
 :::
 
 ```mermaid
@@ -64,72 +62,72 @@ flowchart LR
 
 **Tunnel C1-T1 — Center 1 ไปยัง BIG-IP-A:**
 
-- GRE outer IPs (สำหรับ tunnel endpoints):
+- IP ภายนอก GRE (สำหรับ endpoint ของ tunnel):
     - IPv4 SRC: `xXC_C1_OUTER_V4x/24`
     - IPv4 DST: `xBIGIP_A_OUTER_V4x/24`
     - IPv6 SRC: `xXC_C1_OUTER_V6x/64`
     - IPv6 DST: `xBIGIP_A_OUTER_V6x/64`
 
-- GRE inner IPs (สำหรับ BGP session):
+- IP ภายใน GRE (สำหรับเซสชัน BGP):
     - IPv4: `xXC_C1_T1_INNER_V4x/30`
     - IPv6: `xXC_C1_T1_INNER_V6x/64`
 
 **Tunnel C1-T2 — Center 1 ไปยัง BIG-IP-B:**
 
-- GRE outer IPs (สำหรับ tunnel endpoints):
+- IP ภายนอก GRE (สำหรับ endpoint ของ tunnel):
     - IPv4 SRC: `xXC_C1_OUTER_V4x/24`
     - IPv4 DST: `xBIGIP_B_OUTER_V4x/24`
     - IPv6 SRC: `xXC_C1_OUTER_V6x/64`
     - IPv6 DST: `xBIGIP_B_OUTER_V6x/64`
 
-- GRE inner IPs (สำหรับ BGP session):
+- IP ภายใน GRE (สำหรับเซสชัน BGP):
     - IPv4: `xXC_C1_T2_INNER_V4x/30`
     - IPv6: `xXC_C1_T2_INNER_V6x/64`
 
 **Tunnel C2-T1 — Center 2 ไปยัง BIG-IP-A:**
 
-- GRE outer IPs (สำหรับ tunnel endpoints):
+- IP ภายนอก GRE (สำหรับ endpoint ของ tunnel):
     - IPv4 SRC: `xXC_C2_OUTER_V4x/24`
     - IPv4 DST: `xBIGIP_A_OUTER_V4x/24`
     - IPv6 SRC: `xXC_C2_OUTER_V6x/64`
     - IPv6 DST: `xBIGIP_A_OUTER_V6x/64`
 
-- GRE inner IPs (สำหรับ BGP session):
+- IP ภายใน GRE (สำหรับเซสชัน BGP):
     - IPv4: `xXC_C2_T1_INNER_V4x/30`
     - IPv6: `xXC_C2_T1_INNER_V6x/64`
 
 **Tunnel C2-T2 — Center 2 ไปยัง BIG-IP-B:**
 
-- GRE outer IPs (สำหรับ tunnel endpoints):
+- IP ภายนอก GRE (สำหรับ endpoint ของ tunnel):
     - IPv4 SRC: `xXC_C2_OUTER_V4x/24`
     - IPv4 DST: `xBIGIP_B_OUTER_V4x/24`
     - IPv6 SRC: `xXC_C2_OUTER_V6x/64`
     - IPv6 DST: `xBIGIP_B_OUTER_V6x/64`
 
-- GRE inner IPs (สำหรับ BGP session):
+- IP ภายใน GRE (สำหรับเซสชัน BGP):
     - IPv4: `xXC_C2_T2_INNER_V4x/30`
     - IPv6: `xXC_C2_T2_INNER_V6x/64`
 
 :::note[IP ภายใน (transit)]
-IP ภายใน เช่น `10.10.10.0/30` ใช้ที่อยู่ RFC 1918 ซึ่งถูกต้อง
+IP ภายในเช่น `10.10.10.0/30` ใช้ที่อยู่ RFC 1918 ซึ่งถูกต้อง
 เนื่องจากถูกห่อหุ้ม (encapsulate) อยู่ภายใน GRE tunnel และไม่ปรากฏ
-บนอินเทอร์เน็ตสาธารณะ Protected prefixes ต้องสามารถ route ได้แบบ
-สาธารณะเสมอ IP ของ outer endpoint ต้องสามารถ route ได้แบบสาธารณะ
+บนอินเทอร์เน็ตสาธารณะ พรีฟิกซ์ที่ต้องการป้องกันต้องสามารถเราต์ได้
+แบบสาธารณะเสมอ; IP endpoint ภายนอกต้องสามารถเราต์ได้แบบสาธารณะ
 เมื่อ tunnel ผ่านอินเทอร์เน็ตสาธารณะ
 :::
 
-:::note[ลิงก์ IPv6 ภายใน]
-ลิงก์ IPv6 ภายในใช้ prefix /64 ในที่นี้เพื่อให้ตรงกับค่าเริ่มต้นทั่วไป
-ของคลาวด์ สำหรับลิงก์แบบ point-to-point แนะนำให้ใช้ /127 ตาม
-[RFC 6164](https://datatracker.ietf.org/doc/html/rfc6164) เพื่อหลีกเลี่ยงปัญหา neighbor-discovery exhaustion ให้ใช้ /127
+:::note[ลิงก์ภายใน IPv6]
+ลิงก์ภายใน IPv6 ใช้พรีฟิกซ์ /64 ที่นี่เพื่อให้ตรงกับค่าเริ่มต้น
+ของคลาวด์ทั่วไป สำหรับลิงก์แบบ point-to-point แนะนำให้ใช้ /127 ตาม
+[RFC 6164](https://datatracker.ietf.org/doc/html/rfc6164) เพื่อหลีกเลี่ยง neighbor-discovery exhaustion ให้ใช้ /127
 หากการกำหนด tunnel ของ SOC รองรับ
 :::
 
 ### BIG-IP
 
-**BIG-IP-A** (outer IP `xBIGIP_A_OUTER_V4x` / `xBIGIP_A_OUTER_V6x`):
+**BIG-IP-A** (IP ภายนอก `xBIGIP_A_OUTER_V4x` / `xBIGIP_A_OUTER_V6x`):
 
-- GRE outer IPs:
+- IP ภายนอก GRE:
     - IPv4 SRC: `xBIGIP_A_OUTER_V4x/24`
     - IPv4 DST (Center 1): `xXC_C1_OUTER_V4x/24`
     - IPv4 DST (Center 2): `xXC_C2_OUTER_V4x/24`
@@ -137,17 +135,17 @@ IP ภายใน เช่น `10.10.10.0/30` ใช้ที่อยู่ R
     - IPv6 DST (Center 1): `xXC_C1_OUTER_V6x/64`
     - IPv6 DST (Center 2): `xXC_C2_OUTER_V6x/64`
 
-- GRE inner IPs — Tunnel C1-T1:
+- IP ภายใน GRE — Tunnel C1-T1:
     - IPv4: `xBIGIP_C1_T1_INNER_V4x/30`
     - IPv6: `xBIGIP_C1_T1_INNER_V6x/64`
 
-- GRE inner IPs — Tunnel C2-T1:
+- IP ภายใน GRE — Tunnel C2-T1:
     - IPv4: `xBIGIP_C2_T1_INNER_V4x/30`
     - IPv6: `xBIGIP_C2_T1_INNER_V6x/64`
 
-**BIG-IP-B** (outer IP `xBIGIP_B_OUTER_V4x` / `xBIGIP_B_OUTER_V6x`):
+**BIG-IP-B** (IP ภายนอก `xBIGIP_B_OUTER_V4x` / `xBIGIP_B_OUTER_V6x`):
 
-- GRE outer IPs:
+- IP ภายนอก GRE:
     - IPv4 SRC: `xBIGIP_B_OUTER_V4x/24`
     - IPv4 DST (Center 1): `xXC_C1_OUTER_V4x/24`
     - IPv4 DST (Center 2): `xXC_C2_OUTER_V4x/24`
@@ -155,19 +153,19 @@ IP ภายใน เช่น `10.10.10.0/30` ใช้ที่อยู่ R
     - IPv6 DST (Center 1): `xXC_C1_OUTER_V6x/64`
     - IPv6 DST (Center 2): `xXC_C2_OUTER_V6x/64`
 
-- GRE inner IPs — Tunnel C1-T2:
+- IP ภายใน GRE — Tunnel C1-T2:
     - IPv4: `xBIGIP_C1_T2_INNER_V4x/30`
     - IPv6: `xBIGIP_C1_T2_INNER_V6x/64`
 
-- GRE inner IPs — Tunnel C2-T2:
+- IP ภายใน GRE — Tunnel C2-T2:
     - IPv4: `xBIGIP_C2_T2_INNER_V4x/30`
     - IPv6: `xBIGIP_C2_T2_INNER_V6x/64`
 
-- Protected prefixes (ประกาศไปยังคลาวด์):
+- พรีฟิกซ์ที่ต้องการป้องกัน (ประกาศไปยังคลาวด์):
     - IPv4: `xPROTECTED_NET_V4xxPROTECTED_CIDR_V4x`
     - IPv6: `xPROTECTED_PREFIX_V6x`
 
-### ไดอะแกรมโทโพโลยีโดยละเอียด
+### ไดอะแกรมโทโพโลยีแบบละเอียด
 
 ```mermaid
 flowchart LR

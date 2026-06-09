@@ -1,6 +1,6 @@
 ---
-title: Verification
-description: BIG-IP에서 GRE 터널 및 BGP 구성을 확인하고 일반적인 문제를 해결합니다.
+title: 검증
+description: BIG-IP에서 GRE 터널 및 BGP 구성을 검증하고 일반적인 문제를 해결합니다.
 sidebar:
   order: 6
 i18n:
@@ -75,26 +75,26 @@ show ipv6 route
 ```
 
 :::caution[문제 해결 체크리스트]
-BGP가 수립되지 않는 경우:
+BGP가 설정되지 않는 경우:
 
 1. GRE 터널이 활성화되어 있는지 확인합니다: `show net tunnels tunnel`에서
    상태가 `up`으로 표시되어야 합니다.
 1. 내부 self IP에서 `allow-service`에 `tcp:179`가 포함되어 있는지 확인합니다.
 1. 터널을 통해 원격 내부 IP에 ping을 수행합니다.
-1. BGP 비밀번호가 양쪽에서 일치하는지 확인합니다(`NOTIFICATION`
+1. BGP 비밀번호가 양쪽에서 일치하는지 확인합니다 (`NOTIFICATION`
    오류의 일반적인 원인).
 1. prefix-list와 route-map이 올바르게 적용되었는지 확인합니다.
-1. `show ip bgp neighbors <IP>`를 확인하여 마지막 오류/리셋
-   원인을 파악합니다.
-1. 각 HA 유닛에서 해당 유닛 자체의 터널이 활성화되어 있고 해당 유닛
-   자체의 BGP 네이버가 구성되어 있는지(다른 유닛의 것이 아닌) 확인합니다.
+1. `show ip bgp neighbors <IP>`에서 마지막 오류/리셋
+   사유를 확인합니다.
+1. 각 HA 유닛에서 해당 유닛의 자체 터널이 활성화되어 있고 자체
+   BGP 네이버가 구성되어 있는지(다른 유닛의 것이 아닌) 확인합니다.
 :::
 
 ### XC 콘솔
 
-**DDoS and Transit Services >
-[DDoS Protection > Visibility](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)**로 이동하여 다음을 확인합니다:
+**DDoS 및 트랜짓 서비스 >
+[DDoS 보호 > 가시성](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)**으로 이동하여 다음을 확인합니다:
 
-- 네트워크, 영역, 애플리케이션별 트래픽.
+- 네트워크, 존, 애플리케이션별 트래픽.
 - 차단된 트래픽 대 허용된 트래픽.
-- 공격 세부 정보 및 스크러빙 조치.
+- 공격 세부 정보 및 스크러빙 동작.

@@ -2,7 +2,7 @@
 title: Panoramica
 description: >-
   Introduzione alla configurazione dei tunnel GRE e del peering BGP da una
-  coppia BIG-IP in HA verso i centri di scrubbing Cloud per la mitigazione DDoS.
+  coppia BIG-IP HA verso i centri di scrubbing Cloud DDoS.
 sidebar:
   order: 1
 i18n:
@@ -12,11 +12,11 @@ i18n:
 
 ## Cloud GRE/BGP BIG-IP
 
-- Configurare **tunnel GRE** e **peering BGP** da una coppia BIG-IP in HA
-  (che funge da apparecchiatura presso la sede del cliente, CPE), con tunnel
+- Configurare i **tunnel GRE** e il **peering BGP** da una coppia BIG-IP HA
+  (che funge da customer premises equipment, CPE), con tunnel
   indipendenti per ciascuna unità.
-- Collegarsi ai centri di scrubbing per la **mitigazione DDoS Cloud**
-  in **modalità instradata** (L3/L4).
+- Connettersi ai centri di scrubbing **Cloud DDoS Mitigation**
+  in **modalità routed** (L3/L4).
 
 ```mermaid
 flowchart LR
@@ -44,24 +44,25 @@ flowchart LR
 
 ## Requisiti
 
-- Servizio Cloud di **mitigazione DDoS instradata L3/L4**
+- Servizio Cloud **L3/L4 Routed DDoS Mitigation**
   (Always On o Always Available) abilitato per il proprio tenant.
 - BIG-IP con:
-    - LTM (o moduli di rete equivalenti).
-    - **Routing dinamico (BGP)** con licenza abilitata.
-- Modalità instradata: almeno un prefisso **pubblicamente annunciato /24 (o più corto)**
-  per la protezione (il minimo per IPv6 è **/48**).
+    - LTM (o moduli di networking equivalenti).
+    - **Routing dinamico (BGP)** con licenza e abilitato.
+- Modalità routed: almeno un prefisso **pubblicizzato pubblicamente /24 (o più corto)**
+  per la protezione (il minimo IPv6 è **/48**).
     - I prefissi protetti **devono essere pubblicamente instradabili** (non RFC 1918).
      Gli endpoint esterni GRE devono anch'essi essere pubblicamente instradabili quando i tunnel
      attraversano la rete Internet pubblica; le implementazioni che utilizzano connettività
-     privata (L2, peering privato) possono utilizzare indirizzi endpoint RFC 1918.
+     privata (L2, peering privato) possono usare indirizzi endpoint
+     RFC 1918.
 - Connettività tra il proprio data center/router e
   il/i centro/i di scrubbing Cloud.
 
 ## Architettura HA
 
-Il BIG-IP viene implementato come **coppia HA attivo/standby**, ciascuna unità
-ottiene i propri tunnel GRE indipendenti e sessioni BGP verso ogni
+Il BIG-IP è implementato come **coppia HA active/standby**, ciascuna unità
+dispone dei propri tunnel GRE indipendenti e sessioni BGP verso ogni
 centro di scrubbing:
 
 ```mermaid
@@ -101,28 +102,28 @@ flowchart LR
   la dipendenza da un IP flottante per l'origine dei tunnel.
 - **Sessioni BGP indipendenti**: Ciascuna unità esegue le proprie sessioni BGP
   attraverso i propri tunnel. BIG-IP-A effettua il peering con C1-T1 e C2-T1;
-  BIG-IP-B effettua il peering con C1-T2 e C2-T2. In caso di failover le
-  sessioni BGP dell'unità standby sono già stabilite, così il
-  Cloud può reindirizzare il traffico immediatamente.
-- **Config sync**: Le configurazioni di tunnel, self IP e routing vengono
+  BIG-IP-B effettua il peering con C1-T2 e C2-T2. In caso di failover le sessioni
+  BGP dell'unità standby sono già stabilite, quindi il
+  Cloud può spostare il traffico immediatamente.
+- **Config sync**: Le configurazioni di tunnel, self IP e routing sono
   sincronizzate tra le unità tramite **config-sync**. Poiché la configurazione
-  BGP `imish` è per singola unità, ciascuna unità mantiene le proprie
+  BGP `imish` è per unità, ciascuna unità mantiene le proprie
   dichiarazioni neighbor. Verificare che la sincronizzazione includa tutti gli oggetti tmsh.
-- **Comportamento BGP attivo/standby**: L'unità attiva annuncia
+- **Comportamento BGP active/standby**: L'unità attiva pubblicizza
   i prefissi protetti con attributi BGP normali. L'unità standby
-  può annunciare gli stessi prefissi con un AS-path prepend più lungo
-  (rendendola meno preferita) oppure sopprimere gli annunci
+  può pubblicizzare gli stessi prefissi con un AS-path
+  prepend più lungo (rendendola meno preferita) o sopprimere le pubblicizzazioni
   fino al failover. Coordinare l'approccio con il SOC.
 - **Convergenza del failover**: Con `graceful-restart` abilitato e
   tunnel indipendenti, la nuova unità attiva dispone già di sessioni
-  BGP stabilite. La convergenza dipende dallo spostamento della selezione
-  del best-path BGP verso gli annunci dell'unità appena attivata. Testare con
+  BGP stabilite. La convergenza dipende dallo spostamento della selezione BGP best-path
+  verso le pubblicizzazioni della nuova unità attiva. Testare con
   `run sys failover standby`.
 
 :::note
 Il modello HA con tunnel indipendenti descritto sopra è l'approccio raccomandato
-per la ridondanza dei dispositivi lato cliente. Validare il proprio specifico
-progetto di failover con il proprio team di account prima di passare in
+per la ridondanza dei dispositivi lato cliente. Validare la propria specifica
+architettura di failover con il team di account prima di passare in
 produzione, in particolare per quanto riguarda la strategia di AS-path prepend e
 i tempi di riconvergenza BGP.
 :::

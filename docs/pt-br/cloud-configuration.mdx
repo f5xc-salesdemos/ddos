@@ -27,11 +27,11 @@ Antes de configurar túneis e BGP:
         - Seu **ASN** (deve ser emitido pelo ARIN ou registro equivalente).
         - Registro **IRR** (RIPE, ARIN, APNIC, etc.) e **ROA** no
           repositório RPKI.
-        - **Método de retorno de tráfego limpo** desejado (túneis GRE, Camada 2,
+        - **Método de retorno de tráfego limpo** desejado (túneis GRE, Layer 2,
           peering privado via Equinix, etc.).
         - Localizações dos data centers e roteadores a proteger.
         - **AS-Path prepends** necessários para anúncios de rotas.
-        - Quaisquer **comunidades BGP**, preferências de rotas ou **AS-SET**
+        - Quaisquer **comunidades BGP**, preferências de rota ou **AS-SET**
 
 1. O SOC provisionará:
     - Túneis
@@ -45,7 +45,7 @@ Antes de configurar túneis e BGP:
 1. Faça login no [Console da Nuvem](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation) e
    selecione **Routed DDoS** no seletor de serviços.
 1. Vá para **Manage > Tunnels > Add Tunnel** e configure:
-    - **Location Name** e **Availability Zone** (Zona 1 por padrão).
+    - **Location Name** e **Availability Zone** (Zone 1 por padrão).
     - **Bandwidth Max in MB**.
     - **Tunnel Type**:
         - **GRE Over IPv4** para túnel externo IPv4.
@@ -53,20 +53,20 @@ Antes de configurar túneis e BGP:
         - **IP Over IP** para encapsulamento IPv4-em-IPv4.
         - **IPv6 Over IPv6** para encapsulamento IPv6-em-IPv6.
     - **Customer Endpoint IP**: endereço externo do BIG-IP (self IP
-      externo, deve ser roteável publicamente quando os túneis atravessam
-      a Internet pública).
+      externo, deve ser publicamente roteável quando os túneis
+      atravessam a Internet pública).
     - Opcional: interconexão IPv4/IPv6, fragmentação, keepalive (todos
       desabilitados por padrão).
 1. Em **Tunnel BGP Information**:
     - Selecione um **objeto ASN** (seu ASN).
     - Defina **Customer Peer Secret Override**: Use Default Secret
-      (padrão), BGP Password Override (ofuscado ou texto limpo) ou
+      (padrão), BGP Password Override (ofuscado ou texto claro) ou
       No Secret.
     - Defina o valor do **Holddown Timer** em segundos, se diferente do
       padrão.
 
 O SOC pode pré-criar esses objetos de túnel para você; basta combinar
-os **IPs de endpoint** e as configurações BGP no BIG-IP.
+os **IPs de endpoint** e as configurações de BGP no BIG-IP.
 
 ### ASNs e Rotas
 
@@ -76,7 +76,7 @@ os **IPs de endpoint** e as configurações BGP no BIG-IP.
 - **Prefixos**: -> **Manage > Prefixes > Add Prefix**.
     - Insira cada prefixo IP e associe-o ao seu ASN.
 
-- **Anúncios de Rota** -> **Manage > Route Advertisement > Add Route Advertisement**.
+- **Anúncios de Rotas** -> **Manage > Route Advertisement > Add Route Advertisement**.
     - Insira o prefixo, escolha **Active** ou **Not Advertised** e
       expiração opcional.
 
@@ -90,4 +90,4 @@ VIPs** permitem que você:
 
 - Bloqueie ou permita tráfego específico.
 - Limite a taxa de fontes abusivas.
-- Aplique proteções adicionais contra DDoS além da simples limpeza volumétrica.
+- Aplique proteções adicionais contra DDoS além da limpeza puramente volumétrica.

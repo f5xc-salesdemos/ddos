@@ -12,7 +12,8 @@ i18n:
 
 ## XC (UI)
 
-Utilisez l'interface web pour configurer le côté **Cloud**, en vous basant sur le guide [L3/L4 Routed DDoS Mitigation](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation).
+Utilisez l'interface web pour configurer le côté **Cloud**, en vous basant sur
+le guide [L3/L4 Routed DDoS Mitigation](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation).
 
 ### Activer l'espace de travail DDoS
 
@@ -23,17 +24,17 @@ Avant de pouvoir configurer les tunnels et le BGP :
     - Activer l'espace de travail **Routed DDoS Mitigation** pour votre tenant.
     - Fournir :
         - Vos **blocs d'adresses IP publiques** (/24 ou plus court pour IPv4, /48 ou
-          plus court pour IPv6) et la preuve de propriété (ou LOA).
-        - Votre **ASN** (doit être émis par ARIN ou un registre équivalent).
+          plus court pour IPv6) et une preuve de propriété (ou LOA).
+        - Votre **ASN** (doit être délivré par ARIN ou un registre équivalent).
         - L'enregistrement **IRR** (RIPE, ARIN, APNIC, etc.) et le **ROA** dans
           le dépôt RPKI.
-        - La **méthode de retour du trafic propre** souhaitée (tunnels GRE, Layer 2,
+        - La **méthode de retour du trafic nettoyé** souhaitée (tunnels GRE, couche 2,
           peering privé via Equinix, etc.).
         - Les emplacements des centres de données et les routeurs à protéger.
-        - Les **AS-Path prepends** requis pour les annonces de routes.
+        - Les **préfixes AS-Path** requis pour les annonces de routes.
         - Toute **communauté BGP**, préférence de route ou **AS-SET**
 
-1. Le SOC provisionne :
+1. Le SOC provisionnera :
     - Les tunnels
     - Les ASN
     - Les préfixes protégés
@@ -44,12 +45,12 @@ Avant de pouvoir configurer les tunnels et le BGP :
 
 1. Connectez-vous à la [Console Cloud](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation) et
    sélectionnez **Routed DDoS** dans le sélecteur de services.
-1. Allez dans **Manage > Tunnels > Add Tunnel**, et configurez :
+1. Accédez à **Manage > Tunnels > Add Tunnel**, et configurez :
     - **Location Name** et **Availability Zone** (Zone 1 par défaut).
     - **Bandwidth Max in MB**.
     - **Tunnel Type** :
-        - **GRE Over IPv4** pour un tunnel extérieur IPv4.
-        - **GRE Over IPv6** pour un tunnel extérieur IPv6.
+        - **GRE Over IPv4** pour un tunnel externe IPv4.
+        - **GRE Over IPv6** pour un tunnel externe IPv6.
         - **IP Over IP** pour l'encapsulation IPv4-dans-IPv4.
         - **IPv6 Over IPv6** pour l'encapsulation IPv6-dans-IPv6.
     - **Customer Endpoint IP** : l'adresse externe du BIG-IP (self IP
@@ -60,13 +61,13 @@ Avant de pouvoir configurer les tunnels et le BGP :
 1. Sous **Tunnel BGP Information** :
     - Sélectionnez un **objet ASN** (votre ASN).
     - Définissez **Customer Peer Secret Override** : Use Default Secret
-      (par défaut), BGP Password Override (masqué ou en texte clair), ou
+      (par défaut), BGP Password Override (masqué ou texte en clair), ou
       No Secret.
     - Définissez la valeur du **Holddown Timer** en secondes si elle diffère
       de la valeur par défaut.
 
-Le SOC peut pré-créer ces objets tunnel pour vous ; vous n'avez qu'à faire correspondre
-les **IP des endpoints** et les paramètres BGP sur le BIG-IP.
+Le SOC peut pré-créer ces objets tunnel pour vous ; il vous suffit de faire correspondre
+les **IP de point de terminaison** et les paramètres BGP sur le BIG-IP.
 
 ### ASN et routes
 
@@ -85,7 +86,7 @@ lorsque le service est actif.
 
 ### Restriction réseau
 
-Les **Firewall Rules**, **Deny List Rules** et **Fast ACLs for Internet
+Les **Firewall Rules**, les **Deny List Rules** et les **Fast ACLs for Internet
 VIPs** vous permettent de :
 
 - Bloquer ou autoriser un trafic spécifique.

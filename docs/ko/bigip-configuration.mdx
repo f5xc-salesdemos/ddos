@@ -1,6 +1,6 @@
 ---
 title: BIG-IP 구성
-description: 'BIG-IP HA 쌍에서 GRE 터널, 셀프 IP 및 BGP를 구성하기 위한 tmsh 및 imish 명령어.'
+description: 'BIG-IP HA 쌍에서 GRE 터널, Self IP 및 BGP를 구성하기 위한 tmsh 및 imish 명령어.'
 sidebar:
   order: 5
 i18n:
@@ -10,11 +10,11 @@ i18n:
 
 ## BIG-IP
 
-- (Route Domain 0 예제)
+- (Route Domain 0 예시)
 
-아래의 모든 명령은 BIG-IP에서 **tmsh**로 실행합니다. 오브젝트 이름과 IP는 필요에 따라 조정하십시오.
+아래의 모든 명령어는 BIG-IP의 **tmsh**에서 실행됩니다. 객체 이름과 IP를 필요에 따라 조정하십시오.
 
-BIG-IP에서의 일반적인 GRE 터널 구성에 대해서는 [Configuring a GRE Tunnel Using BIG-IP](https://community.f5.com/kb/technicalarticles/configuring-a-generic-routing-encapsulation-gre-tunnel-using-big-ip/289030)를 참조하십시오. Cloud와의 초기 라우팅 구성 설정에 대해서는 [K000147949](https://my.f5.com/manage/s/article/K000147949)를 참조하십시오.
+BIG-IP에서의 일반적인 GRE 터널 구성에 대해서는 [Configuring a GRE Tunnel Using BIG-IP](https://community.f5.com/kb/technicalarticles/configuring-a-generic-routing-encapsulation-gre-tunnel-using-big-ip/289030)를 참조하십시오. 클라우드와의 초기 라우팅 구성 설정에 대해서는 [K000147949](https://my.f5.com/manage/s/article/K000147949)를 참조하십시오.
 
 ### tmsh
 
@@ -23,11 +23,11 @@ BIG-IP에서의 일반적인 GRE 터널 구성에 대해서는 [Configuring a GR
 root@(bigip)(cfg-sync Standalone)(Active)(/Common)(tmos)#
 ```
 
-### 외부 셀프 IP
+### 외부(Outer) Self IP
 
 GRE 엔드포인트
 
-이것은 각 BIG-IP 유닛에서 **GRE 터널 엔드포인트**로 사용되는 IP로, 일반적으로 외부 VLAN에 위치합니다. 각 유닛은 자체 비플로팅 외부 셀프 IP(`traffic-group-local-only`)를 가집니다:
+이것은 각 BIG-IP 유닛에서 **GRE 터널 엔드포인트**로 사용되는 IP로, 일반적으로 외부 VLAN에 위치합니다. 각 유닛은 자체 비부동(non-floating) 외부 Self IP(`traffic-group-local-only`)를 가집니다:
 
 **BIG-IP-A:**
 
@@ -63,7 +63,7 @@ create net self xc-ddos-v6-self-b \
 
 ### GRE 터널
 
-각 터널은 BIG-IP 유닛에서 Cloud 스크러빙 센터 엔드포인트로 연결됩니다. 각 유닛당 **두 개의 터널**을 생성하여(각 지리적 위치의 스크러빙 센터에 하나씩) HA 쌍 전체에서 총 **네 개의 논리적 터널**을 구성합니다:
+각 터널은 BIG-IP 유닛에서 클라우드 스크러빙 센터 엔드포인트로 연결됩니다. HA 쌍 전체에서 총 **4개의 논리적 터널**을 구성하기 위해 **유닛당 2개의 터널**(각 지리적 위치의 스크러빙 센터에 하나씩)을 생성합니다:
 
 **터널 C1-T1 — BIG-IP-A에서 xCENTER_1x으로:**
 
@@ -121,7 +121,7 @@ create net tunnels tunnel xc-ddos-c2t2-v6 \
   remote-address xXC_C2_OUTER_V6x
 ```
 
-터널 이름(`xc-ddos-c1t1-v4` 등)은 임의로 지정할 수 있습니다. 자체 네이밍 규칙을 사용하십시오.
+터널 이름(`xc-ddos-c1t1-v4` 등)은 임의로 지정할 수 있으며, 자체 명명 규칙을 사용하십시오.
 
 ### 터널 MTU 설정
 
@@ -139,12 +139,13 @@ modify net tunnels tunnel xc-ddos-c2t2-v6 mtu 1456
 ```
 
 :::caution[경로 MTU]
-위의 값은 외부 네트워크에서 1500바이트 경로 MTU를 가정합니다. 업스트림 경로 MTU가 더 작은 경우 조정하십시오. Path MTU Discovery(PMTUD)가 올바르게 작동하도록 중간 장비에서 ICMP "destination unreachable / fragmentation needed"(type 3, code 4)가 **차단되지 않도록** 하십시오.
+위의 값은 외부 네트워크에서 1500바이트 경로 MTU를 가정합니다.
+업스트림 경로 MTU가 더 작은 경우 조정하십시오. 경로 MTU 검색(PMTUD)이 올바르게 작동할 수 있도록 중간 장비에서 ICMP "destination unreachable / fragmentation needed"(type 3, code 4)가 **차단되지 않도록** 하십시오.
 :::
 
-### GRE 안티 스푸핑 (업스트림 ACL)
+### GRE 스푸핑 방지 (업스트림 ACL)
 
-GRE(IP 프로토콜 47)는 인증을 제공하지 않습니다. 외부 IP 쌍을 아는 사람이라면 누구나 터널에 트래픽을 주입할 수 있습니다. 업스트림 라우터 또는 방화벽에서 ACL을 적용하여 인바운드 GRE를 예상되는 Cloud 스크러빙 센터 소스 IP로만 제한하십시오:
+GRE(IP 프로토콜 47)는 인증을 제공하지 않습니다. 외부 IP 쌍을 알고 있는 누구나 터널에 트래픽을 주입할 수 있습니다. 업스트림 라우터 또는 방화벽에 ACL을 적용하여 인바운드 GRE를 예상되는 클라우드 스크러빙 센터 소스 IP로만 제한하십시오:
 
 ```shell title="Cisco IOS"
 ! Example upstream router ACL (Cisco IOS style)
@@ -158,12 +159,12 @@ ip access-list extended ALLOW-XC-GRE
 ```
 
 :::note
-사용하는 라우터 플랫폼에 맞게 구문을 수정하십시오. IPv6 GRE 터널에 대한 IPv6 ACL에도 동일한 원칙이 적용됩니다. BIG-IP-A(`xBIGIP_A_OUTER_V4x`)와 BIG-IP-B(`xBIGIP_B_OUTER_V4x`) 외부 IP 모두 GRE 목적지로 허용되어야 합니다.
+라우터 플랫폼에 맞게 구문을 조정하십시오. IPv6 GRE 터널의 IPv6 ACL에도 동일한 원칙이 적용됩니다. BIG-IP-A(`xBIGIP_A_OUTER_V4x`)와 BIG-IP-B(`xBIGIP_B_OUTER_V4x`)의 외부 IP 모두 GRE 대상으로 허용되어야 합니다.
 :::
 
-### 내부 셀프 IP (BGP 피어링)
+### 내부(Inner) Self IP (BGP 피어링)
 
-Cloud와의 **BGP 세션**을 구성할 내부 IP 주소(GRE 터널 내부)를 할당합니다. 피어링 세션이 수립되려면 `allow-service`에 `tcp:179`(BGP)가 포함되어야 합니다. 내부 셀프 IP에 `icmp:any`를 추가하면 터널을 통한 PMTUD 및 도달 가능성 테스트가 가능해집니다:
+클라우드와 **BGP 세션**을 형성할 내부 IP 주소(GRE 터널 내부)를 할당합니다. 피어링 세션이 설정되려면 `allow-service`에 `tcp:179`(BGP)가 포함되어야 합니다. 내부 Self IP에 `icmp:any`를 추가하면 터널을 통한 PMTUD 및 도달성 테스트가 가능합니다:
 
 **터널 C1-T1 — BIG-IP-A에서 xCENTER_1x으로:**
 
@@ -234,33 +235,33 @@ create net self xc-ddos-c2t2-inner-v6 \
 Route Domain 0에 대한 BGP를 구성하려면 [imish](https://techdocs.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/big-ip-tmos-routing-administration-14-0-0/11.html)를 사용하십시오.
 
 :::note[유닛별 구성]
-`imish` BGP 구성은 각 BIG-IP 유닛에 로컬로 적용됩니다. 각 유닛은 자체 터널에 대한 네이버만 구성합니다:
+`imish` BGP 구성은 각 BIG-IP 유닛에 로컬입니다. 각 유닛은 자체 터널에 대한 네이버만 구성합니다:
 
 - **BIG-IP-A**는 C1-T1 및 C2-T1 네이버를 구성합니다.
 - **BIG-IP-B**는 C1-T2 및 C2-T2 네이버를 구성합니다.
 
-`router-id`는 유닛별로 고유해야 합니다(각 유닛의 자체 외부 셀프 IP를 사용하십시오).
+`router-id`는 유닛별로 고유해야 합니다(각 유닛의 자체 외부 Self IP를 사용).
 :::
 
-1. RD 0에 대해 imish를 시작합니다:
+1. RD 0에 대한 imish 진입:
 
    ```bash title="bash"
    tmsh run /util imish -r 0
    ```
 
-1. 권한 모드 및 구성 모드로 진입합니다:
+1. 권한 모드 및 구성 모드 진입:
 
    ```shell title="imish"
    localhost.localdomain[0]> enable
    localhost.localdomain[0]# configure terminal
    ```
 
-1. BGP 구성 예제:
+1. BGP 구성 예시:
 
 :::caution[플레이스홀더 값 교체]
-- `xCUSTOMER_ASNx` — ARIN(또는 해당 RIR)에 등록된 공인 ASN. 라우팅 DDoS의 경우 Cloud가 전 세계적으로 프리픽스를 공고하므로 **공인 ASN이 필수**입니다. 프라이빗 ASN(64512-65534 / 4200000000-4294967294)은 SOC가 해당 배포에 대해 프라이빗 ASN 피어링을 명시적으로 지원하는 경우에만 허용됩니다.
-- `xF5_XC_ASNx` — Cloud ASN(SOC에서 제공).
-- `xBGP_PASSWORDx` — 합의된 BGP MD5 패스워드(또는 Console "default secret"과 일치). 이 패스워드를 다른 서비스에 재사용하지 마십시오.
+- `xCUSTOMER_ASNx` — ARIN(또는 해당 RIR)에 등록된 공인 ASN. 클라우드가 사용자의 프리픽스를 전역으로 공고하므로 라우팅 기반 DDoS에는 **공인 ASN이 필수**입니다. 프라이빗 ASN(64512-65534 / 4200000000-4294967294)은 SOC가 해당 배포에 대해 프라이빗 ASN 피어링을 명시적으로 지원하는 경우에만 허용됩니다.
+- `xF5_XC_ASNx` — 클라우드 ASN(SOC에서 제공).
+- `xBGP_PASSWORDx` — 합의된 BGP MD5 비밀번호(또는 콘솔 "default secret"과 일치). 이 비밀번호를 다른 서비스에 재사용하지 마십시오.
 :::
 
 **BIG-IP-A** (router-id `xBIGIP_A_OUTER_V4x`, 네이버 C1-T1 + C2-T1):
@@ -389,19 +390,19 @@ route-map route-to-cloud-ipv6 permit 10
 
 **주요 BGP 설정 설명:**
 
-- **`timers 10 30`** — 10초마다 Keepalive, 30초 Hold time. 기본값(60 / 180)은 DDoS 완화 장애 조치에 너무 느립니다. 양쪽이 일치하도록 SOC와 타이머 값을 조율하십시오.
-- **`ttl-security hops 1`** — GTSM([RFC 5082](https://datatracker.ietf.org/doc/html/rfc5082))을 활성화합니다. BGP 세션이 GRE 터널을 통한 싱글 홉이므로, 수신 BGP 패킷에 TTL = 255를 요구하여 원격 BGP 스푸핑을 방지합니다.
-- **`maximum-prefix 10 warning-only`** — 심층 방어 보호 장치. 인바운드 prefix-list가 모든 경로를 거부하더라도, 피어가 예기치 않게 프리픽스를 보내면 경고를 생성합니다.
-- **`redistribute kernel`** — route-map을 통해 `null0` 정적 경로를 BGP에 주입합니다. 대안으로 명시적 `network` 문(예: `network xPROTECTED_PREFIX_V4x`)을 사용할 수 있으며, 이는 다른 커널 경로와 관계없이 정확한 프리픽스만 공고되므로 더 정밀합니다. 두 방법 모두 작동합니다. 여기서는 유연성을 위해 엄격한 route-map이 포함된 `redistribute kernel`을 보여줍니다.
+- **`timers 10 30`** — Keepalive 10초마다, Hold time 30초. 기본값(60 / 180)은 DDoS 완화 페일오버에 너무 느립니다. 양쪽이 일치하도록 SOC와 타이머 값을 조율하십시오.
+- **`ttl-security hops 1`** — GTSM([RFC 5082](https://datatracker.ietf.org/doc/html/rfc5082))을 활성화합니다. BGP 세션이 GRE 터널을 통한 단일 홉이므로, 수신 BGP 패킷에 TTL = 255를 요구하여 원격 BGP 스푸핑을 방지합니다.
+- **`maximum-prefix 10 warning-only`** — 심층 방어 보호 장치입니다. 인바운드 prefix-list가 모든 경로를 거부하더라도, 피어가 예상치 않게 프리픽스를 전송하면 경고를 생성합니다.
+- **`redistribute kernel`** — route-map을 통해 `null0` 정적 경로를 BGP에 주입합니다. 대안으로 명시적 `network` 문(예: `network xPROTECTED_PREFIX_V4x`)을 사용할 수 있으며, 이는 다른 커널 경로에 관계없이 정확한 프리픽스만 공고되므로 더 정확합니다. 두 방법 모두 작동하며, 유연성을 위해 엄격한 route-map을 사용한 `redistribute kernel`이 여기에 표시되어 있습니다.
 
 :::tip[BFD (양방향 포워딩 감지)]
-BIG-IP 버전이 GRE 터널을 통한 BFD를 지원하는 경우, 1초 미만의 장애 감지를 위해 활성화하십시오:
+BIG-IP 버전이 GRE 터널을 통한 BFD를 지원하는 경우, 서브초 단위 장애 감지를 위해 활성화하십시오:
 
 ```shell
 neighbor cloud fall-over bfd
 ```
 
-BFD는 BGP keepalive 타이머만 사용하는 것보다 더 빠른 수렴을 제공합니다. 활성화하기 전에 BIG-IP 버전 및 SOC에서 BFD 지원을 확인하십시오.
+BFD는 BGP keepalive 타이머만 사용하는 것보다 더 빠른 수렴을 제공합니다. 활성화하기 전에 BIG-IP 버전 및 SOC와 BFD 지원 여부를 확인하십시오.
 :::
 
-더 높은 관리 거리(201)를 가진 `null0` 정적 경로는 프리픽스가 **커널 라우팅 테이블**에 존재하도록 보장하여, 비공격 상태에서 정상 라우팅에 영향을 주지 않으면서 BGP를 통해 Cloud로 재배포할 수 있게 합니다. 보호 대상 프리픽스가 더 낮은 관리 거리를 가진 다른 소스에서 이미 라우팅 테이블에 존재하는 경우, `null0` 경로가 활성화되지 않아 재배포가 실패할 수 있습니다. 구성 후 `show ip route`로 확인하십시오.
+더 높은 관리 거리(201)를 가진 `null0` 정적 경로는 프리픽스가 **커널 라우팅 테이블**에 존재하도록 보장하여, 비공격 조건에서 정상 라우팅에 영향을 주지 않으면서 BGP를 통해 클라우드로 재배포할 수 있게 합니다. 보호 대상 프리픽스가 더 낮은 관리 거리를 가진 다른 소스에서 라우팅 테이블에 이미 존재하는 경우, `null0` 경로가 활성화되지 않아 재배포가 실패할 수 있습니다 — 구성 후 `show ip route`로 확인하십시오.

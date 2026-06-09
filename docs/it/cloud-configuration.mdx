@@ -1,8 +1,8 @@
 ---
-title: Cloud Configuration
+title: Configurazione Cloud
 description: >-
-  Configure tunnels, ASNs, and routes in the Cloud Console for routed DDoS
-  mitigation.
+  Configurare tunnel, ASN e rotte nella Console Cloud per la mitigazione DDoS
+  instradata.
 sidebar:
   order: 4
 i18n:
@@ -12,25 +12,26 @@ i18n:
 
 ## XC (UI)
 
-Utilizzare l'interfaccia web per configurare il lato **Cloud**, basandosi sulla guida [L3/L4 Routed DDoS Mitigation](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation).
+Utilizzare l'interfaccia web per configurare il lato **Cloud**, basandosi
+sulla guida [L3/L4 Routed DDoS Mitigation](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation).
 
 ### Abilitare il workspace DDoS
 
 Prima di poter configurare tunnel e BGP:
 
 1. Contattare il team Cloud (tramite `sales@example.com`
-   o il proprio team di account) per:
+   o il proprio account team) per:
     - Abilitare il workspace **Routed DDoS Mitigation** per il proprio tenant.
     - Fornire:
-        - I propri **netblock IP pubblici** (/24 o più corti per IPv4, /48 o
-          più corti per IPv6) e prova di proprietà (o LOA).
-        - Il proprio **ASN** (deve essere rilasciato da ARIN o un registro equivalente).
+        - I propri **blocchi di IP pubblici** (/24 o più corti per IPv4, /48 o
+          più corti per IPv6) e la prova di titolarità (o LOA).
+        - Il proprio **ASN** (deve essere rilasciato da ARIN o registro equivalente).
         - Registrazione **IRR** (RIPE, ARIN, APNIC, ecc.) e **ROA** nel
           repository RPKI.
         - Il **metodo di ritorno del traffico pulito** desiderato (tunnel GRE, Layer 2,
           peering privato tramite Equinix, ecc.).
         - Posizioni dei data center e router da proteggere.
-        - **AS-Path prepend** richiesti per gli annunci di rotta.
+        - **AS-Path prepend** necessari per gli annunci delle rotte.
         - Eventuali **community BGP**, preferenze di rotta o **AS-SET**
 
 1. Il SOC provvederà al provisioning di:
@@ -38,14 +39,14 @@ Prima di poter configurare tunnel e BGP:
     - ASN
     - Prefissi protetti
     - Opzioni di annuncio delle rotte
-    - Fast ACL / policy firewall, secondo necessità
+    - Fast ACL / policy firewall, se necessario
 
 ### Tunnel
 
-1. Accedere alla [Cloud Console](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation) e
+1. Accedere alla [Console Cloud](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation) e
    selezionare **Routed DDoS** dal selettore dei servizi.
 1. Andare su **Manage > Tunnels > Add Tunnel** e configurare:
-    - **Location Name** e **Availability Zone** (Zone 1 per impostazione predefinita).
+    - **Location Name** e **Availability Zone** (Zone 1 di default).
     - **Bandwidth Max in MB**.
     - **Tunnel Type**:
         - **GRE Over IPv4** per tunnel esterno IPv4.
@@ -56,38 +57,38 @@ Prima di poter configurare tunnel e BGP:
       esterno, deve essere instradabile pubblicamente quando i tunnel
       attraversano la rete Internet pubblica).
     - Opzionale: interconnessione IPv4/IPv6, frammentazione, keepalive (tutti
-      disabilitati per impostazione predefinita).
+      disabilitati di default).
 1. In **Tunnel BGP Information**:
     - Selezionare un **oggetto ASN** (il proprio ASN).
     - Impostare **Customer Peer Secret Override**: Use Default Secret
-      (predefinito), BGP Password Override (offuscata o in chiaro) o
+      (predefinito), BGP Password Override (offuscato o testo in chiaro) o
       No Secret.
-    - Impostare il valore del **Holddown Timer** in secondi se diverso dal
-      valore predefinito.
+    - Impostare il valore del **Holddown Timer** in secondi se diverso da
+      quello predefinito.
 
-Il SOC potrebbe pre-creare questi oggetti tunnel; sarà sufficiente far corrispondere
+Il SOC potrebbe pre-creare questi oggetti tunnel per voi; sarà sufficiente far corrispondere
 gli **endpoint IP** e le impostazioni BGP sul BIG-IP.
 
 ### ASN e Rotte
 
 - **ASN**: -> **Manage > ASNs > Add ASN**.
-    - Inserire il proprio ASN e assicurarsi che BGP sia abilitato.
+    - Inserire il proprio ASN e verificare che BGP sia abilitato.
 
 - **Prefissi**: -> **Manage > Prefixes > Add Prefix**.
     - Inserire ciascun prefisso IP e associarlo al proprio ASN.
 
-- **Annunci di Rotta** -> **Manage > Route Advertisement > Add Route Advertisement**.
-    - Inserire il prefisso, scegliere **Active** o **Not Advertised** e
-      la scadenza opzionale.
+- **Annunci delle Rotte** -> **Manage > Route Advertisement > Add Route Advertisement**.
+    - Inserire il prefisso, scegliere **Active** o **Not Advertised**, e
+      una scadenza opzionale.
 
 Questi oggetti controllano quali prefissi vengono annunciati tramite la rete
 globale quando il servizio è attivo.
 
 ### Restrizioni di Rete
 
-**Firewall Rules**, **Deny List Rules** e **Fast ACLs for Internet
+**Firewall Rules**, **Deny List Rules** e **Fast ACL for Internet
 VIPs** consentono di:
 
 - Bloccare o consentire traffico specifico.
-- Limitare il rate delle sorgenti abusive.
-- Applicare protezioni DDoS aggiuntive oltre al puro scrubbing volumetrico.
+- Limitare la velocità delle sorgenti abusive.
+- Applicare protezioni DDoS aggiuntive oltre al semplice scrubbing volumetrico.

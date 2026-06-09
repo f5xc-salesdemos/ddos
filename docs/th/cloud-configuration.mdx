@@ -1,8 +1,6 @@
 ---
-title: Cloud Configuration
-description: >-
-  Configure tunnels, ASNs, and routes in the Cloud Console for routed DDoS
-  mitigation.
+title: การตั้งค่าระบบคลาวด์
+description: ตั้งค่าอุโมงค์ ASN และเส้นทางใน Cloud Console สำหรับการบรรเทา DDoS แบบ routed
 sidebar:
   order: 4
 i18n:
@@ -12,83 +10,83 @@ i18n:
 
 ## XC (UI)
 
-ใช้เว็บอินเทอร์เฟซเพื่อกำหนดค่าฝั่ง **Cloud** โดยอ้างอิงจากคู่มือ
-[L3/L4 Routed DDoS Mitigation](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)
+ใช้อินเทอร์เฟซเว็บเพื่อตั้งค่าฝั่ง **คลาวด์** โดยอ้างอิงจาก
+คู่มือ [L3/L4 Routed DDoS Mitigation](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)
 
-### เปิดใช้งาน DDoS workspace
+### เปิดใช้งานพื้นที่ทำงาน DDoS
 
-ก่อนที่คุณจะสามารถกำหนดค่า tunnels และ BGP ได้:
+ก่อนที่คุณจะสามารถตั้งค่าอุโมงค์และ BGP ได้:
 
-1. ติดต่อทีม Cloud (ผ่าน `sales@example.com`
-   หรือทีมบัญชีของคุณ) เพื่อ:
-    - เปิดใช้งาน **Routed DDoS Mitigation** workspace สำหรับ tenant ของคุณ
-    - จัดเตรียมข้อมูลต่อไปนี้:
-        - **public IP netblocks** (/24 หรือสั้นกว่าสำหรับ IPv4, /48 หรือ
+1. ติดต่อทีมคลาวด์ (ผ่าน `sales@example.com`
+   หรือทีมดูแลบัญชีของคุณ) เพื่อ:
+    - เปิดใช้งานพื้นที่ทำงาน **Routed DDoS Mitigation** สำหรับ tenant ของคุณ
+    - ให้ข้อมูล:
+        - **บล็อก IP สาธารณะ** ของคุณ (/24 หรือสั้นกว่าสำหรับ IPv4, /48 หรือ
           สั้นกว่าสำหรับ IPv6) และหลักฐานการเป็นเจ้าของ (หรือ LOA)
-        - **ASN** ของคุณ (ต้องออกโดย ARIN หรือ registry ที่เทียบเท่า)
-        - การลงทะเบียน **IRR** (RIPE, ARIN, APNIC เป็นต้น) และ **ROA** ใน
+        - **ASN** ของคุณ (ต้องได้รับการออกโดย ARIN หรือหน่วยงานจดทะเบียนที่เทียบเท่า)
+        - การจดทะเบียน **IRR** (RIPE, ARIN, APNIC เป็นต้น) และ **ROA** ใน
           RPKI repository
-        - **วิธีการส่ง clean-traffic กลับ** ที่ต้องการ (GRE tunnels, Layer 2,
+        - **วิธีการส่งคืนทราฟฟิกที่สะอาด** ที่ต้องการ (อุโมงค์ GRE, Layer 2,
           private peering ผ่าน Equinix เป็นต้น)
-        - ตำแหน่ง data center และ routers ที่ต้องการป้องกัน
-        - **AS-Path prepends** ที่จำเป็นสำหรับการประกาศ route
-        - **BGP communities**, route preferences หรือ **AS-SET** ใดๆ
+        - ตำแหน่งที่ตั้งศูนย์ข้อมูลและเราเตอร์ที่ต้องการปกป้อง
+        - **AS-Path prepends** ที่จำเป็นสำหรับการประกาศเส้นทาง
+        - **BGP communities**, ลำดับความสำคัญของเส้นทาง หรือ **AS-SET** ใดๆ
 
 1. SOC จะจัดเตรียม:
-    - Tunnels
-    - ASNs
-    - Protected prefixes
-    - ตัวเลือกการประกาศ route
-    - Fast ACLs / firewall policies ตามความจำเป็น
+    - อุโมงค์
+    - ASN
+    - พรีฟิกซ์ที่ได้รับการปกป้อง
+    - ตัวเลือกการโฆษณาเส้นทาง
+    - Fast ACL / นโยบายไฟร์วอลล์ ตามที่จำเป็น
 
-### Tunnels
+### อุโมงค์
 
 1. เข้าสู่ระบบ [Cloud Console](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation) และ
    เลือก **Routed DDoS** จากตัวเลือกบริการ
-1. ไปที่ **Manage > Tunnels > Add Tunnel** แล้วกำหนดค่า:
+1. ไปที่ **Manage > Tunnels > Add Tunnel** แล้วตั้งค่า:
     - **Location Name** และ **Availability Zone** (Zone 1 เป็นค่าเริ่มต้น)
     - **Bandwidth Max in MB**
     - **Tunnel Type**:
-        - **GRE Over IPv4** สำหรับ outer tunnel แบบ IPv4
-        - **GRE Over IPv6** สำหรับ outer tunnel แบบ IPv6
-        - **IP Over IP** สำหรับการห่อหุ้มแบบ IPv4-in-IPv4
-        - **IPv6 Over IPv6** สำหรับการห่อหุ้มแบบ IPv6-in-IPv6
+        - **GRE Over IPv4** สำหรับอุโมงค์ชั้นนอก IPv4
+        - **GRE Over IPv6** สำหรับอุโมงค์ชั้นนอก IPv6
+        - **IP Over IP** สำหรับการห่อหุ้ม IPv4-in-IPv4
+        - **IPv6 Over IPv6** สำหรับการห่อหุ้ม IPv6-in-IPv6
     - **Customer Endpoint IP**: ที่อยู่ภายนอกของ BIG-IP (outer self
-      IP ต้องสามารถ route ได้แบบ public เมื่อ tunnels ผ่านอินเทอร์เน็ต
-      สาธารณะ)
-    - ตัวเลือกเสริม: IPv4/IPv6 interconnect, fragmentation, keepalive (ทั้งหมด
-      ปิดใช้งานเป็นค่าเริ่มต้น)
+      IP ต้องสามารถกำหนดเส้นทางได้แบบสาธารณะเมื่ออุโมงค์ผ่าน
+      อินเทอร์เน็ตสาธารณะ)
+    - ทางเลือก: IPv4/IPv6 interconnect, fragmentation, keepalive (ปิดใช้งาน
+      ทั้งหมดเป็นค่าเริ่มต้น)
 1. ภายใต้ **Tunnel BGP Information**:
     - เลือก **ASN object** (ASN ของคุณ)
     - ตั้งค่า **Customer Peer Secret Override**: Use Default Secret
       (ค่าเริ่มต้น), BGP Password Override (blindfolded หรือ clear text) หรือ
       No Secret
-    - ตั้งค่า **Holddown Timer** เป็นวินาที หากแตกต่างจาก
+    - ตั้งค่า **Holddown Timer** เป็นค่าในหน่วยวินาทีหากแตกต่างจาก
       ค่าเริ่มต้น
 
-SOC อาจสร้าง tunnel objects เหล่านี้ล่วงหน้าให้คุณ คุณเพียงแค่จับคู่
+SOC อาจสร้างออบเจ็กต์อุโมงค์เหล่านี้ให้คุณล่วงหน้า คุณเพียงแค่จับคู่
 **endpoint IPs** และการตั้งค่า BGP บน BIG-IP
 
-### ASNs และ Routes
+### ASN และเส้นทาง
 
-- **ASNs**: -> **Manage > ASNs > Add ASN**
-    - กรอก ASN ของคุณและตรวจสอบว่า BGP ถูกเปิดใช้งาน
+- **ASN**: -> **Manage > ASNs > Add ASN**
+    - ป้อน ASN ของคุณและตรวจสอบให้แน่ใจว่า BGP ถูกเปิดใช้งาน
 
-- **Prefixes**: -> **Manage > Prefixes > Add Prefix**
-    - กรอก IP prefix แต่ละรายการและเชื่อมโยงกับ ASN ของคุณ
+- **พรีฟิกซ์**: -> **Manage > Prefixes > Add Prefix**
+    - ป้อนพรีฟิกซ์ IP แต่ละรายการและเชื่อมโยงกับ ASN ของคุณ
 
-- **Route Advertisements** -> **Manage > Route Advertisement > Add Route Advertisement**
-    - กรอก prefix เลือก **Active** หรือ **Not Advertised** และ
-      วันหมดอายุตามต้องการ
+- **การโฆษณาเส้นทาง** -> **Manage > Route Advertisement > Add Route Advertisement**
+    - ป้อนพรีฟิกซ์ เลือก **Active** หรือ **Not Advertised** และ
+      วันหมดอายุที่เป็นทางเลือก
 
-objects เหล่านี้ควบคุมว่า prefixes ใดจะถูกประกาศผ่านเครือข่าย global
-เมื่อบริการทำงานอยู่
+ออบเจ็กต์เหล่านี้ควบคุมว่าพรีฟิกซ์ใดจะถูกประกาศผ่านเครือข่ายทั่วโลก
+เมื่อบริการอยู่ในสถานะทำงาน
 
-### Network Restriction
+### การจำกัดเครือข่าย
 
-**Firewall Rules**, **Deny List Rules** และ **Fast ACLs for Internet
-VIPs** ช่วยให้คุณ:
+**กฎไฟร์วอลล์**, **กฎรายการปฏิเสธ** และ **Fast ACL สำหรับ Internet
+VIP** ช่วยให้คุณสามารถ:
 
 - บล็อกหรืออนุญาตทราฟฟิกเฉพาะ
-- จำกัดอัตราแหล่งที่มาที่เป็นอันตราย
-- ใช้การป้องกัน DDoS เพิ่มเติมนอกเหนือจากการ scrubbing เชิงปริมาตรอย่างเดียว
+- จำกัดอัตราจากแหล่งที่ละเมิด
+- ใช้การป้องกัน DDoS เพิ่มเติมนอกเหนือจากการกรองทราฟฟิกเชิงปริมาตรเพียงอย่างเดียว

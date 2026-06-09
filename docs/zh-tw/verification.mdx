@@ -1,6 +1,6 @@
 ---
 title: 驗證
-description: 在 BIG-IP 上驗證 GRE 通道和 BGP 配置，並排除常見問題。
+description: 驗證 BIG-IP 上的 GRE 通道和 BGP 設定，並排除常見問題。
 sidebar:
   order: 6
 i18n:
@@ -14,7 +14,7 @@ i18n:
 
 #### 通道
 
-在每個單元上執行以檢視其自身的通道：
+在每個單元上針對其自身的通道執行：
 
 ```shell title="tmsh"
 show net tunnels tunnel xc-ddos-c1t1-v4
@@ -75,15 +75,15 @@ show ipv6 route
 ```
 
 :::caution[疑難排解檢查清單]
-如果 BGP 未建立連線：
+如果 BGP 無法建立連線：
 
 1. 確認 GRE 通道已啟動：`show net tunnels tunnel` 應顯示狀態為 `up`。
-1. 確認內部 self IP 的 `allow-service` 包含 `tcp:179`。
+1. 確認內部 self IP 上的 `allow-service` 包含 `tcp:179`。
 1. 透過通道 ping 遠端內部 IP。
-1. 檢查兩端的 BGP 密碼是否一致（這是造成 `NOTIFICATION` 錯誤的常見原因）。
+1. 檢查 BGP 密碼在兩端是否一致（這是造成 `NOTIFICATION` 錯誤的常見原因）。
 1. 確認 prefix-lists 和 route-maps 已正確套用。
 1. 檢查 `show ip bgp neighbors <IP>` 以查看最後的錯誤/重設原因。
-1. 在每個 HA 單元上，確認該單元自身的通道已啟動，且其自身的 BGP 鄰居已配置（而非另一個單元的）。
+1. 在每個 HA 單元上，確認該單元自身的通道已啟動且其自身的 BGP 鄰居已設定（而非另一個單元的）。
 :::
 
 ### XC 主控台
@@ -93,4 +93,4 @@ show ipv6 route
 
 - 依網路、區域、應用程式分類的流量。
 - 已封鎖與已允許的流量。
-- 攻擊詳情與清洗動作。
+- 攻擊詳細資訊和清洗動作。

@@ -12,18 +12,18 @@ i18n:
 
 ## Prefixo protegido (IP público)
 
-O **prefixo protegido** é o bloco de endereços IP públicos da sua organização que
-o Cloud defende contra ataques DDoS.
+O **prefixo protegido** é o bloco de endereços IP públicos da sua organização que o
+Cloud defende contra ataques DDoS.
 
 | Requisito | IPv4 | IPv6 |
 |-------------|------|------|
 | **Tamanho mínimo** | /24 (256 IPs) | /48 |
-| **Roteabilidade** | Publicamente roteável (não RFC 1918) | Unicast global (não ULA) |
+| **Roteabilidade** | Publicamente roteável (não-RFC 1918) | Unicast global (não-ULA) |
 | **Registro** | Atribuído por RIR (ARIN, RIPE, APNIC) | Atribuído por RIR |
 | **Comprovação** | LOA ou registro IRR/ROA | LOA ou registro IRR/ROA |
 
 **Fluxo de tráfego:**
 
 1. O Cloud anuncia seu prefixo globalmente via BGP anycast
-1. Todo o tráfego da Internet destinado aos seus IPs é roteado através de centros de limpeza (scrubbing centers)
+1. Todo o tráfego da Internet destinado aos seus IPs é roteado através dos centros de limpeza
 1. O tráfego de ataque é descartado; o tráfego limpo é entregue via túneis GRE

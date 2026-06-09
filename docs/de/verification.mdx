@@ -1,5 +1,5 @@
 ---
-title: Verification
+title: Überprüfung
 description: >-
   Überprüfen Sie die GRE-Tunnel- und BGP-Konfiguration auf BIG-IP und beheben
   Sie häufige Probleme.
@@ -16,7 +16,7 @@ i18n:
 
 #### Tunnel
 
-Führen Sie auf jeder Einheit die Befehle für ihre eigenen Tunnel aus:
+Führen Sie auf jeder Einheit für ihre eigenen Tunnel aus:
 
 ```shell title="tmsh"
 show net tunnels tunnel xc-ddos-c1t1-v4
@@ -30,7 +30,7 @@ show net tunnels tunnel xc-ddos-c2t2-v6
 list net tunnels tunnel xc-ddos-c1t1-v4 all-properties
 ```
 
-#### Self IPs
+#### Self-IPs
 
 ```shell title="tmsh"
 list net self xc-ddos-*
@@ -77,17 +77,17 @@ show ipv6 route
 ```
 
 :::caution[Checkliste zur Fehlerbehebung]
-Falls BGP keine Verbindung aufbaut:
+Wenn BGP nicht aufgebaut wird:
 
 1. Überprüfen Sie, ob der GRE-Tunnel aktiv ist: `show net tunnels tunnel` sollte
    den Status `up` anzeigen.
-1. Bestätigen Sie, dass `allow-service` den Wert `tcp:179` auf der inneren Self IP enthält.
-1. Pingen Sie die entfernte innere IP durch den Tunnel an.
-1. Überprüfen Sie, ob das BGP-Passwort auf beiden Seiten übereinstimmt (häufige Ursache für
+1. Bestätigen Sie, dass `allow-service` auf der inneren Self-IP `tcp:179` enthält.
+1. Pingen Sie die entfernte innere IP durch den Tunnel.
+1. Prüfen Sie, ob das BGP-Passwort auf beiden Seiten übereinstimmt (häufige Ursache für
    `NOTIFICATION`-Fehler).
-1. Stellen Sie sicher, dass Prefix-Listen und Route-Maps korrekt angewendet sind.
+1. Überprüfen Sie, ob Prefix-Listen und Route-Maps korrekt angewendet sind.
 1. Prüfen Sie `show ip bgp neighbors <IP>` auf den letzten Fehler-/Reset-Grund.
-1. Überprüfen Sie auf jeder HA-Einheit, ob die eigenen Tunnel der Einheit aktiv sind und die
+1. Überprüfen Sie auf jeder HA-Einheit, ob die eigenen Tunnel der Einheit aktiv sind und ihre
    eigenen BGP-Nachbarn konfiguriert sind (nicht die der anderen Einheit).
 :::
 
@@ -98,4 +98,4 @@ Navigieren Sie zu **DDoS and Transit Services >
 
 - Datenverkehr nach Netzwerk, Zone, Anwendung.
 - Blockierter vs. erlaubter Datenverkehr.
-- Angriffsdetails und Scrubbing-Aktionen.
+- Angriffsdetails und Bereinigungsaktionen.

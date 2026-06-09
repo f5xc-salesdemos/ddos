@@ -1,7 +1,7 @@
 ---
 title: Verificação
 description: >-
-  Verifique a configuração de túnel GRE e BGP no BIG-IP e solucione problemas
+  Verifique a configuração de túnel GRE e BGP no BIG-IP, e solucione problemas
   comuns.
 sidebar:
   order: 6
@@ -38,7 +38,7 @@ list net self xc-ddos-*
 
 #### Verificação de Caminho
 
-De cada unidade:
+A partir de cada unidade:
 
 ```shell title="tmsh"
 # BIG-IP-A tunnels
@@ -77,7 +77,7 @@ show ipv6 route
 ```
 
 :::caution[Lista de verificação para solução de problemas]
-Se o BGP não estabelecer conexão:
+Se o BGP não estabelecer:
 
 1. Verifique se o túnel GRE está ativo: `show net tunnels tunnel` deve
    mostrar o estado `up`.
@@ -99,4 +99,4 @@ Navegue até **DDoS and Transit Services >
 
 - Tráfego por rede, zona, aplicação.
 - Tráfego bloqueado vs. permitido.
-- Detalhes de ataques e ações de limpeza (scrubbing).
+- Detalhes de ataques e ações de scrubbing.

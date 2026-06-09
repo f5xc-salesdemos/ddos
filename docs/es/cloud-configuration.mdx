@@ -1,7 +1,7 @@
 ---
 title: Configuración en la nube
 description: >-
-  Configure túneles, ASN y rutas en la consola en la nube para la mitigación de
+  Configure túneles, ASNs y rutas en la consola en la nube para la mitigación de
   DDoS enrutado.
 sidebar:
   order: 4
@@ -12,38 +12,38 @@ i18n:
 
 ## XC (UI)
 
-Utilice la interfaz web para configurar el lado de la **Nube**, basándose en
+Use la interfaz web para configurar el lado de la **nube**, basándose en
 la guía de [Mitigación de DDoS enrutado L3/L4](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation).
 
 ### Habilitar el espacio de trabajo de DDoS
 
 Antes de poder configurar túneles y BGP:
 
-1. Contacte al equipo de la Nube (a través de `sales@example.com`
+1. Contacte al equipo de la nube (a través de `sales@example.com`
    o su equipo de cuenta) para:
     - Habilitar el espacio de trabajo de **Mitigación de DDoS enrutado** para su tenant.
     - Proporcionar:
         - Sus **bloques de IP públicas** (/24 o más cortos para IPv4, /48 o
           más cortos para IPv6) y prueba de propiedad (o LOA).
         - Su **ASN** (debe ser emitido por ARIN o un registro equivalente).
-        - Registro **IRR** (RIPE, ARIN, APNIC, etc.) y **ROA** en el
-          repositorio RPKI.
-        - El **método de retorno de tráfico limpio** deseado (túneles GRE, Capa 2,
+        - Registro **IRR** (RIPE, ARIN, APNIC, etc.) y **ROA** en
+          el repositorio RPKI.
+        - El **método deseado de retorno de tráfico limpio** (túneles GRE, Capa 2,
           peering privado a través de Equinix, etc.).
         - Ubicaciones de centros de datos y routers a proteger.
-        - **AS-Path prepends** requeridos para los anuncios de rutas.
-        - Cualquier **comunidad BGP**, preferencias de rutas o **AS-SET**
+        - **Prepends de AS-Path** requeridos para los anuncios de rutas.
+        - Cualquier **comunidad BGP**, preferencias de ruta o **AS-SET**
 
 1. El SOC aprovisionará:
     - Túneles
-    - ASN
+    - ASNs
     - Prefijos protegidos
     - Opciones de anuncio de rutas
-    - Fast ACLs / políticas de firewall, según sea necesario
+    - ACLs rápidas / políticas de firewall, según sea necesario
 
 ### Túneles
 
-1. Inicie sesión en la [Consola en la Nube](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation) y
+1. Inicie sesión en la [Consola en la nube](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation) y
    seleccione **Routed DDoS** desde el selector de servicios.
 1. Vaya a **Manage > Tunnels > Add Tunnel**, y configure:
     - **Location Name** y **Availability Zone** (Zone 1 por defecto).
@@ -54,24 +54,24 @@ Antes de poder configurar túneles y BGP:
         - **IP Over IP** para encapsulación IPv4-en-IPv4.
         - **IPv6 Over IPv6** para encapsulación IPv6-en-IPv6.
     - **Customer Endpoint IP**: dirección externa de BIG-IP (self IP
-      externo, debe ser públicamente enrutable cuando los túneles
+      externo, debe ser enrutable públicamente cuando los túneles
       atraviesan la Internet pública).
     - Opcional: interconexión IPv4/IPv6, fragmentación, keepalive (todos
       deshabilitados por defecto).
 1. En **Tunnel BGP Information**:
     - Seleccione un **objeto ASN** (su ASN).
     - Configure **Customer Peer Secret Override**: Use Default Secret
-      (predeterminado), BGP Password Override (ofuscado o texto claro), o
+      (por defecto), BGP Password Override (ofuscado o texto plano), o
       No Secret.
-    - Establezca el valor del **Holddown Timer** en segundos si es diferente al
-      predeterminado.
+    - Configure el valor de **Holddown Timer** en segundos si es diferente
+      del valor por defecto.
 
 El SOC puede pre-crear estos objetos de túnel por usted; simplemente haga coincidir
 las **IPs de endpoint** y la configuración BGP en BIG-IP.
 
-### ASN y rutas
+### ASNs y rutas
 
-- **ASN**: -> **Manage > ASNs > Add ASN**.
+- **ASNs**: -> **Manage > ASNs > Add ASN**.
     - Ingrese su ASN y asegúrese de que BGP esté habilitado.
 
 - **Prefijos**: -> **Manage > Prefixes > Add Prefix**.
@@ -86,9 +86,9 @@ cuando el servicio está activo.
 
 ### Restricción de red
 
-Las **Reglas de firewall**, las **Reglas de lista de denegación** y las **Fast ACLs para VIPs de
-Internet** le permiten:
+**Firewall Rules**, **Deny List Rules** y **Fast ACLs for Internet
+VIPs** le permiten:
 
 - Bloquear o permitir tráfico específico.
 - Limitar la tasa de fuentes abusivas.
-- Aplicar protecciones DDoS adicionales más allá del scrubbing volumétrico puro.
+- Aplicar protecciones adicionales contra DDoS más allá de la depuración volumétrica pura.

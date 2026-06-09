@@ -13,20 +13,20 @@ i18n:
 ## Topologia e endereços
 
 Configuração para o data center **xDC_NAMEx**
-conectando-se aos centros de limpeza (scrubbing) na Cloud.
+conectando-se aos centros de limpeza Cloud.
 
 :::note
 **Estes são valores de exemplo.** Substitua pelos valores específicos do cliente e
 fornecidos pelo SOC utilizando as tabelas acima.
 
-Os prefixos protegidos **devem ser publicamente roteáveis** (não-RFC 1918).
-Os IPs dos endpoints externos do GRE também devem ser publicamente roteáveis quando os túneis
+Os prefixos protegidos **devem ser publicamente roteáveis** (não RFC 1918).
+Os IPs de endpoint externo do GRE também devem ser publicamente roteáveis quando os túneis
 atravessam a Internet pública; conectividade privada (L2, peering
 privado) pode permitir endpoints RFC 1918. Consulte
-[K000147949](https://my.f5.com/manage/s/article/K000147949) para exemplos utilizando endereços de documentação adequados.
+[K000147949](https://my.f5.com/manage/s/article/K000147949) para exemplos usando endereços de documentação adequados.
 
 Para redundância, crie **2 túneis por unidade BIG-IP** para diferentes
-centros de limpeza geograficamente distribuídos (4 túneis no total para um par HA).
+centros de limpeza geo-localizados (4 túneis no total para um par HA).
 :::
 
 ```mermaid
@@ -58,7 +58,7 @@ flowchart LR
 
 ## Planilhas
 
-Utilize as planilhas de XC e BIG-IP a seguir como referência ao construir a configuração dos túneis.
+Utilize as seguintes planilhas do XC e do BIG-IP como referência ao construir a configuração do túnel.
 
 ### XC
 
@@ -110,18 +110,18 @@ Utilize as planilhas de XC e BIG-IP a seguir como referência ao construir a con
     - IPv4: `xXC_C2_T2_INNER_V4x/30`
     - IPv6: `xXC_C2_T2_INNER_V6x/64`
 
-:::note[IPs internos (trânsito)]
+:::note[IPs internos (de trânsito)]
 IPs internos como `10.10.10.0/30` utilizam endereços RFC 1918. Isso é
 correto porque eles são encapsulados dentro do túnel GRE e nunca
-aparecem na Internet pública. Os prefixos protegidos devem sempre ser
-publicamente roteáveis; os IPs dos endpoints externos devem ser publicamente roteáveis quando
+aparecem na Internet pública. Os prefixos protegidos devem ser sempre
+publicamente roteáveis; os IPs de endpoint externo devem ser publicamente roteáveis quando
 os túneis atravessam a Internet pública.
 :::
 
 :::note[Links internos IPv6]
 Os links internos IPv6 utilizam prefixos /64 aqui para corresponder aos padrões
-comuns da Cloud. Para links ponto a ponto, /127 é preferível conforme a
-[RFC 6164](https://datatracker.ietf.org/doc/html/rfc6164) para evitar exaustão de neighbor-discovery. Utilize /127
+comuns do Cloud. Para links ponto a ponto, /127 é preferível conforme a
+[RFC 6164](https://datatracker.ietf.org/doc/html/rfc6164) para evitar exaustão de descoberta de vizinho. Utilize /127
 se a atribuição de túnel do SOC suportar.
 :::
 
@@ -163,7 +163,7 @@ se a atribuição de túnel do SOC suportar.
     - IPv4: `xBIGIP_C2_T2_INNER_V4x/30`
     - IPv6: `xBIGIP_C2_T2_INNER_V6x/64`
 
-- Prefixos protegidos (anunciados para a Cloud):
+- Prefixos protegidos (anunciados para o Cloud):
     - IPv4: `xPROTECTED_NET_V4xxPROTECTED_CIDR_V4x`
     - IPv6: `xPROTECTED_PREFIX_V6x`
 

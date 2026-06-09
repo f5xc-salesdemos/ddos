@@ -1,8 +1,8 @@
 ---
 title: Préfixe protégé
 description: >-
-  Exigences relatives au bloc d'adresses IP publiques que Cloud défend contre
-  les attaques DDoS.
+  Exigences pour le bloc d'adresses IP publiques que Cloud défend contre les
+  attaques DDoS.
 sidebar:
   order: 2
 i18n:
@@ -25,5 +25,5 @@ Cloud défend contre les attaques DDoS.
 **Flux de trafic :**
 
 1. Cloud annonce votre préfixe globalement via BGP anycast
-1. Tout le trafic Internet destiné à vos IPs transite par les centres de nettoyage
-1. Le trafic d'attaque est supprimé ; le trafic légitime est acheminé via des tunnels GRE
+1. Tout le trafic Internet destiné à vos IPs transite par les centres de filtrage
+1. Le trafic d'attaque est rejeté ; le trafic légitime est livré via des tunnels GRE
