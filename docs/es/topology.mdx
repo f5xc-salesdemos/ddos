@@ -16,18 +16,17 @@ Configuración para el centro de datos **xDC_NAMEx**
 que se conecta a los centros de depuración en la nube.
 
 :::note
-**Estos son valores de ejemplo.** Reemplácelos con los valores específicos del cliente y
-los proporcionados por el SOC utilizando las tablas anteriores.
+**Estos son valores de ejemplo.** Reemplácelos con valores específicos del cliente y
+valores proporcionados por el SOC utilizando las tablas anteriores.
 
 Los prefijos protegidos **deben ser enrutables públicamente** (no RFC 1918).
-Las IPs de los endpoints externos GRE también deben ser enrutables públicamente cuando los túneles
-atraviesan la Internet pública; la conectividad privada (L2, peering
-privado) puede permitir endpoints RFC 1918. Consulte
-[K000147949](https://my.f5.com/manage/s/article/K000147949) para ejemplos usando direcciones
-de documentación apropiadas.
+Las IPs externas del túnel GRE también deben ser enrutables públicamente cuando los túneles
+atraviesan la Internet pública; la conectividad privada (L2, peering privado)
+puede permitir endpoints RFC 1918. Consulte
+[K000147949](https://my.f5.com/manage/s/article/K000147949) para ver ejemplos usando direcciones de documentación adecuadas.
 
 Para redundancia, cree **2 túneles por unidad BIG-IP** hacia diferentes
-centros de depuración geo-localizados (4 túneles en total para un par HA).
+centros de depuración geolocalizados (4 túneles en total para un par HA).
 :::
 
 ```mermaid
@@ -48,7 +47,7 @@ flowchart LR
     INET --> C1
     INET --> C2
     C1 -- "GRE C1-T1" --> BIGIPA
-    C2 -- "GRE C2-T1" --> BIGIPA
+    C2 -- "GRE C1-T1" --> BIGIPA
     C1 -- "GRE C1-T2" --> BIGIPB
     C2 -- "GRE C2-T2" --> BIGIPB
     BIGIPA --> NET
@@ -115,15 +114,15 @@ Utilice las siguientes hojas de trabajo de XC y BIG-IP como referencia al constr
 Las IPs internas como `10.10.10.0/30` utilizan direcciones RFC 1918. Esto es
 correcto porque están encapsuladas dentro del túnel GRE y nunca
 aparecen en la Internet pública. Los prefijos protegidos siempre deben ser
-enrutables públicamente; las IPs de los endpoints externos deben ser enrutables públicamente cuando
+enrutables públicamente; las IPs externas de los endpoints deben ser enrutables públicamente cuando
 los túneles atraviesan la Internet pública.
 :::
 
 :::note[Enlaces internos IPv6]
 Los enlaces internos IPv6 utilizan prefijos /64 aquí para coincidir con los valores
 predeterminados comunes de la nube. Para enlaces punto a punto, se prefiere /127 según
-[RFC 6164](https://datatracker.ietf.org/doc/html/rfc6164) para evitar el agotamiento de descubrimiento de vecinos. Utilice /127
-si la asignación de túnel del SOC lo admite.
+[RFC 6164](https://datatracker.ietf.org/doc/html/rfc6164) para evitar el agotamiento del descubrimiento de vecinos. Utilice /127
+si la asignación del túnel SOC lo admite.
 :::
 
 ### BIG-IP

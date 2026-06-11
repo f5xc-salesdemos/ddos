@@ -1,7 +1,7 @@
 ---
 title: Verificação
 description: >-
-  Verifique a configuração de túnel GRE e BGP no BIG-IP, e solucione problemas
+  Verifique o túnel GRE e a configuração BGP no BIG-IP, e solucione problemas
   comuns.
 sidebar:
   order: 6
@@ -30,7 +30,7 @@ show net tunnels tunnel xc-ddos-c2t2-v6
 list net tunnels tunnel xc-ddos-c1t1-v4 all-properties
 ```
 
-#### Self IPs
+#### IPs Internos
 
 ```shell title="tmsh"
 list net self xc-ddos-*
@@ -41,11 +41,11 @@ list net self xc-ddos-*
 A partir de cada unidade:
 
 ```shell title="tmsh"
-# BIG-IP-A tunnels
+# Túneis BIG-IP-A
 ping xXC_C1_T1_INNER_V4x source xBIGIP_C1_T1_INNER_V4x
 ping xXC_C2_T1_INNER_V4x source xBIGIP_C2_T1_INNER_V4x
 
-# BIG-IP-B tunnels
+# Túneis BIG-IP-B
 ping xXC_C1_T2_INNER_V4x source xBIGIP_C1_T2_INNER_V4x
 ping xXC_C2_T2_INNER_V4x source xBIGIP_C2_T2_INNER_V4x
 ```
@@ -60,13 +60,13 @@ show ipv6 bgp summary
 show ip bgp
 show ipv6 bgp
 
-# BIG-IP-A neighbors
+# Vizinhos BIG-IP-A
 show ip bgp neighbors xXC_C1_T1_INNER_V4x
 show ip bgp neighbors xXC_C2_T1_INNER_V4x
 show ip bgp neighbors xXC_C1_T1_INNER_V4x advertised-routes
 show ip bgp neighbors xXC_C1_T1_INNER_V4x received-routes
 
-# BIG-IP-B neighbors
+# Vizinhos BIG-IP-B
 show ip bgp neighbors xXC_C1_T2_INNER_V4x
 show ip bgp neighbors xXC_C2_T2_INNER_V4x
 show ip bgp neighbors xXC_C1_T2_INNER_V4x advertised-routes
@@ -77,19 +77,20 @@ show ipv6 route
 ```
 
 :::caution[Lista de verificação para solução de problemas]
-Se o BGP não estabelecer:
+Se o BGP não estabelecer conexão:
 
 1. Verifique se o túnel GRE está ativo: `show net tunnels tunnel` deve
-   mostrar o estado `up`.
-1. Confirme que `allow-service` inclui `tcp:179` no self IP interno.
-1. Faça ping no IP interno remoto através do túnel.
-1. Verifique se a senha do BGP é igual em ambos os lados (causa comum de
-   erros `NOTIFICATION`).
-1. Verifique se as prefix-lists e route-maps estão aplicados corretamente.
-1. Verifique `show ip bgp neighbors <IP>` para o último erro/motivo
-   de reset.
-1. Em cada unidade HA, verifique se os túneis da própria unidade estão ativos e se
-   os vizinhos BGP da própria unidade estão configurados (não os da outra unidade).
+   exibir o estado `up`.
+1. Confirme que `allow-service` inclui `tcp:179` no IP interno do túnel.
+1. Efetue ping no IP interno remoto através do túnel.
+1. Verifique se a senha BGP é idêntica em ambos os lados (causa comum de
+   erros de `NOTIFICATION`).
+1. Verifique se as prefix-lists e route-maps estão aplicadas corretamente.
+1. Consulte `show ip bgp neighbors <IP>` para identificar o último erro ou
+   motivo de reinicialização.
+1. Em cada unidade de HA, verifique se os próprios túneis da unidade estão
+   ativos e se os seus próprios vizinhos BGP estão configurados (não os da
+   outra unidade).
 :::
 
 ### Console XC
@@ -97,6 +98,6 @@ Se o BGP não estabelecer:
 Navegue até **DDoS and Transit Services >
 [DDoS Protection > Visibility](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)** para visualizar:
 
-- Tráfego por rede, zona, aplicação.
-- Tráfego bloqueado vs. permitido.
-- Detalhes de ataques e ações de scrubbing.
+- Tráfego por rede, zona e aplicação.
+- Tráfego bloqueado versus tráfego permitido.
+- Detalhes de ataques e ações de mitigação.

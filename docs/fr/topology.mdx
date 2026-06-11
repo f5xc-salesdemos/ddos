@@ -1,8 +1,8 @@
 ---
-title: Topologie et fiches de travail
+title: Topologie et feuilles de travail
 description: >-
-  Diagrammes de topologie réseau et fiches d'adressage IP pour la configuration
-  des tunnels GRE.
+  Diagrammes de topologie réseau et feuilles de travail d'adressage IP pour la
+  configuration des tunnels GRE.
 sidebar:
   order: 3
 i18n:
@@ -16,33 +16,32 @@ Configuration pour le centre de données **xDC_NAMEx**
 se connectant aux centres de nettoyage Cloud.
 
 :::note
-**Ce sont des valeurs d'exemple.** Remplacez-les par les valeurs spécifiques au client et
+**Ces valeurs sont des exemples.** Remplacez-les par des valeurs spécifiques au client et
 fournies par le SOC en utilisant les tableaux ci-dessus.
 
-Les préfixes protégés **doivent être routables publiquement** (non-RFC 1918).
-Les IP des points de terminaison externes GRE doivent également être routables publiquement lorsque les tunnels
-traversent l'Internet public ; la connectivité privée (L2, peering
-privé) peut autoriser des points de terminaison RFC 1918. Voir
-[K000147949](https://my.f5.com/manage/s/article/K000147949) pour des exemples utilisant des adresses
-de documentation appropriées.
+Les préfixes protégés **doivent être publiquement routables** (non-RFC 1918).
+Les adresses IP externes des tunnels GRE doivent également être publiquement routables lorsque les tunnels
+traversent l'Internet public ; la connectivité privée (L2, peering privé)
+peut autoriser des points de terminaison RFC 1918. Consultez
+[K000147949](https://my.f5.com/manage/s/article/K000147949) pour des exemples utilisant des adresses de documentation appropriées.
 
 Pour la redondance, créez **2 tunnels par unité BIG-IP** vers différents
-centres de nettoyage géo-localisés (4 tunnels au total pour une paire HA).
+centres de nettoyage géolocalisés (4 tunnels au total pour une paire HA).
 :::
 
 ```mermaid
 flowchart LR
-    INET["Internet<br/>Trafic entrant"]
+    INET["Internet<br/>Inbound Traffic"]
 
     subgraph XC["F5 Distributed Cloud"]
-        C1["xCENTER_1x Nettoyage<br/>xXC_C1_OUTER_V4x"]
-        C2["xCENTER_2x Nettoyage<br/>xXC_C2_OUTER_V4x"]
+        C1["xCENTER_1x Scrubbing<br/>xXC_C1_OUTER_V4x"]
+        C2["xCENTER_2x Scrubbing<br/>xXC_C2_OUTER_V4x"]
     end
 
-    subgraph DC["Centre de données xDC_NAMEx"]
+    subgraph DC["xDC_NAMEx Data Center"]
         BIGIPA["BIG-IP-A<br/>xBIGIP_A_OUTER_V4x"]
         BIGIPB["BIG-IP-B<br/>xBIGIP_B_OUTER_V4x"]
-        NET["Réseau protégé DDoS<br/>xPROTECTED_PREFIX_V4x<br/>xPROTECTED_PREFIX_V6x<br/><i>Votre bloc d'IP publiques</i>"]
+        NET["DDoS-Protected Network<br/>xPROTECTED_PREFIX_V4x<br/>xPROTECTED_PREFIX_V6x<br/><i>Your public IP block</i>"]
     end
 
     INET --> C1
@@ -57,9 +56,9 @@ flowchart LR
     style NET fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```
 
-## Fiches de travail
+## Feuilles de travail
 
-Utilisez les fiches de travail XC et BIG-IP suivantes comme référence lors de la construction de la configuration des tunnels.
+Utilisez les feuilles de travail XC et BIG-IP suivantes comme référence lors de la construction de la configuration des tunnels.
 
 ### XC
 
@@ -111,19 +110,19 @@ Utilisez les fiches de travail XC et BIG-IP suivantes comme référence lors de 
     - IPv4 : `xXC_C2_T2_INNER_V4x/30`
     - IPv6 : `xXC_C2_T2_INNER_V6x/64`
 
-:::note[IP internes (transit)]
+:::note[IP internes (de transit)]
 Les IP internes telles que `10.10.10.0/30` utilisent des adresses RFC 1918. Ceci est
 correct car elles sont encapsulées à l'intérieur du tunnel GRE et n'apparaissent jamais
 sur l'Internet public. Les préfixes protégés doivent toujours être
-routables publiquement ; les IP des points de terminaison externes doivent être routables publiquement lorsque
+publiquement routables ; les IP externes des points de terminaison doivent être publiquement routables lorsque
 les tunnels traversent l'Internet public.
 :::
 
 :::note[Liens internes IPv6]
-Les liens internes IPv6 utilisent ici des préfixes /64 pour correspondre aux
-valeurs par défaut courantes du Cloud. Pour les liens point à point, /127 est préféré selon la
+Les liens internes IPv6 utilisent des préfixes /64 ici pour correspondre aux
+paramètres par défaut courants du Cloud. Pour les liens point à point, /127 est préféré selon
 [RFC 6164](https://datatracker.ietf.org/doc/html/rfc6164) afin d'éviter l'épuisement de la découverte de voisins. Utilisez /127
-si l'attribution de tunnel du SOC le prend en charge.
+si l'assignation du tunnel SOC le permet.
 :::
 
 ### BIG-IP
@@ -177,15 +176,15 @@ flowchart LR
         C2["xCENTER_2x<br/>xXC_C2_OUTER_V4x<br/>xXC_C2_OUTER_V6x"]
     end
 
-    subgraph DC["Centre de données xDC_NAMEx"]
+    subgraph DC["xDC_NAMEx Data Center"]
         subgraph BIGIPA["BIG-IP-A<br/>xBIGIP_A_OUTER_V4x<br/>xBIGIP_A_OUTER_V6x"]
-            T1_INNER["C1-T1 Interne<br/>xBIGIP_C1_T1_INNER_V4x<br/>xBIGIP_C1_T1_INNER_V6x"]
-            T2_INNER["C2-T1 Interne<br/>xBIGIP_C2_T1_INNER_V4x<br/>xBIGIP_C2_T1_INNER_V6x"]
+            T1_INNER["C1-T1 Inner<br/>xBIGIP_C1_T1_INNER_V4x<br/>xBIGIP_C1_T1_INNER_V6x"]
+            T2_INNER["C2-T1 Inner<br/>xBIGIP_C2_T1_INNER_V4x<br/>xBIGIP_C2_T1_INNER_V6x"]
         end
 
         subgraph BIGIPB["BIG-IP-B<br/>xBIGIP_B_OUTER_V4x<br/>xBIGIP_B_OUTER_V6x"]
-            T3_INNER["C1-T2 Interne<br/>xBIGIP_C1_T2_INNER_V4x<br/>xBIGIP_C1_T2_INNER_V6x"]
-            T4_INNER["C2-T2 Interne<br/>xBIGIP_C2_T2_INNER_V4x<br/>xBIGIP_C2_T2_INNER_V6x"]
+            T3_INNER["C1-T2 Inner<br/>xBIGIP_C1_T2_INNER_V4x<br/>xBIGIP_C1_T2_INNER_V6x"]
+            T4_INNER["C2-T2 Inner<br/>xBIGIP_C2_T2_INNER_V4x<br/>xBIGIP_C2_T2_INNER_V6x"]
         end
     end
 

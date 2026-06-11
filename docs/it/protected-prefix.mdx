@@ -12,18 +12,18 @@ i18n:
 
 ## Prefisso protetto (IP pubblico)
 
-Il **prefisso protetto** è il blocco di indirizzi IP pubblici della vostra organizzazione che
+Il **prefisso protetto** è il blocco di indirizzi IP pubblici della tua organizzazione che
 Cloud difende dagli attacchi DDoS.
 
 | Requisito | IPv4 | IPv6 |
 |-------------|------|------|
 | **Dimensione minima** | /24 (256 IP) | /48 |
 | **Instradabilità** | Instradabile pubblicamente (non RFC 1918) | Unicast globale (non ULA) |
-| **Registrazione** | Assegnato dal RIR (ARIN, RIPE, APNIC) | Assegnato dal RIR |
-| **Prova** | LOA o registrazione IRR/ROA | LOA o registrazione IRR/ROA |
+| **Registrazione** | Assegnato da RIR (ARIN, RIPE, APNIC) | Assegnato da RIR |
+| **Prova** | Registrazione LOA o IRR/ROA | Registrazione LOA o IRR/ROA |
 
 **Flusso del traffico:**
 
-1. Cloud annuncia il vostro prefisso globalmente tramite BGP anycast
-1. Tutto il traffico Internet destinato ai vostri IP viene instradato attraverso i centri di scrubbing
-1. Il traffico di attacco viene scartato; il traffico pulito viene consegnato tramite tunnel GRE
+1. Cloud annuncia il prefisso globalmente tramite BGP anycast
+1. Tutto il traffico Internet destinato ai tuoi IP viene instradato attraverso i centri di scrubbing
+1. Il traffico di attacco viene eliminato; il traffico pulito viene recapitato tramite tunnel GRE

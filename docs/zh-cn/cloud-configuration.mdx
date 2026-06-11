@@ -1,6 +1,6 @@
 ---
 title: 云端配置
-description: 在云控制台中配置隧道、ASN 和路由，以实现路由式 DDoS 缓解。
+description: 在云控制台中为路由式 DDoS 缓解配置隧道、ASN 和路由。
 sidebar:
   order: 4
 i18n:
@@ -8,78 +8,69 @@ i18n:
   translator: machine
 ---
 
-## XC (UI)
+## XC（界面）
 
-使用 Web 界面配置**云端**侧，参考 [L3/L4 路由式 DDoS 缓解](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)指南。
+根据 [L3/L4 路由式 DDoS 缓解](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation) 指南，使用 Web 界面配置**云端**。
 
 ### 启用 DDoS 工作区
 
 在配置隧道和 BGP 之前：
 
-1. 联系云团队（通过 `sales@example.com`
-   或您的客户团队）以：
+1. 联系云端团队（通过 `sales@example.com` 或您的客户团队）以：
     - 为您的租户启用**路由式 DDoS 缓解**工作区。
     - 提供：
-        - 您的**公网 IP 地址块**（IPv4 为 /24 或更短前缀，IPv6 为 /48 或
-          更短前缀）以及所有权证明（或 LOA）。
-        - 您的 **ASN**（必须由 ARIN 或等效注册机构签发）。
-        - **IRR** 注册（RIPE、ARIN、APNIC 等）以及 RPKI 仓库中的 **ROA**。
-        - 所需的**清洁流量回传方式**（GRE 隧道、二层连接、
-          通过 Equinix 的私有对等互联等）。
-        - 需要保护的数据中心位置和路由器。
-        - 路由通告所需的 **AS-Path 预置**。
-        - 任何 **BGP 社区**、路由优先级或 **AS-SET**
+        - 您的**公共 IP 网段**（IPv4 /24 或更短，IPv6 /48 或更短）及所有权证明（或 LOA）。
+        - 您的 **ASN**（必须由 ARIN 或同等注册机构颁发）。
+        - **IRR** 注册（RIPE、ARIN、APNIC 等）及 RPKI 存储库中的 **ROA**。
+        - 所需的**净流量回程方式**（GRE 隧道、二层、通过 Equinix 私有对等等）。
+        - 需要保护的数据中心位置及路由器。
+        - 路由通告所需的 **AS-Path 前置**。
+        - 任何 **BGP 社区**、路由偏好或 **AS-SET**
 
-1. SOC 将配置：
+1. SOC 将负责配置：
     - 隧道
     - ASN
     - 受保护前缀
     - 路由通告选项
-    - 快速 ACL / 防火墙策略（按需）
+    - 快速 ACL/防火墙策略（按需）
 
 ### 隧道
 
-1. 登录 [云控制台](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)，
-   从服务选择器中选择 **Routed DDoS**。
+1. 登录[云控制台](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)，从服务选择器中选择**路由式 DDoS**。
 1. 前往 **Manage > Tunnels > Add Tunnel**，并配置：
     - **Location Name** 和 **Availability Zone**（默认为 Zone 1）。
     - **Bandwidth Max in MB**。
-    - **Tunnel Type**：
-        - **GRE Over IPv4**：IPv4 外层隧道。
-        - **GRE Over IPv6**：IPv6 外层隧道。
-        - **IP Over IP**：IPv4-in-IPv4 封装。
-        - **IPv6 Over IPv6**：IPv6-in-IPv6 封装。
-    - **Customer Endpoint IP**：BIG-IP 的外部地址（外层 self
-      IP，当隧道经过公网时必须可公网路由）。
+    - **Tunnel Type**（隧道类型）：
+        - **GRE Over IPv4**：用于 IPv4 外层隧道。
+        - **GRE Over IPv6**：用于 IPv6 外层隧道。
+        - **IP Over IP**：用于 IPv4-in-IPv4 封装。
+        - **IPv6 Over IPv6**：用于 IPv6-in-IPv6 封装。
+    - **Customer Endpoint IP**：BIG-IP 的外部地址（外层自 IP，隧道穿越公共互联网时必须具备公网可路由性）。
     - 可选：IPv4/IPv6 互联、分片、保活（默认均禁用）。
 1. 在 **Tunnel BGP Information** 下：
-    - 选择一个 **ASN object**（您的 ASN）。
-    - 设置 **Customer Peer Secret Override**：Use Default Secret
-      （默认）、BGP Password Override（加密或明文）或
-      No Secret。
-    - 如果与默认值不同，设置 **Holddown Timer** 值（单位：秒）。
+    - 选择 **ASN object**（您的 ASN）。
+    - 设置 **Customer Peer Secret Override**：使用默认密钥（默认）、BGP 密码覆盖（盲化或明文），或无密钥。
+    - 如与默认值不同，设置 **Holddown Timer**（秒）。
 
 SOC 可能会为您预先创建这些隧道对象；您只需在 BIG-IP 上匹配**端点 IP** 和 BGP 设置即可。
 
-### ASN 和路由
+### ASN 与路由
 
 - **ASN**：-> **Manage > ASNs > Add ASN**。
-    - 输入您的 ASN 并确保 BGP 已启用。
+    - 输入您的 ASN 并确保已启用 BGP。
 
 - **前缀**：-> **Manage > Prefixes > Add Prefix**。
-    - 输入每个 IP 前缀并将其关联到您的 ASN。
+    - 输入每个 IP 前缀并将其与您的 ASN 关联。
 
 - **路由通告** -> **Manage > Route Advertisement > Add Route Advertisement**。
-    - 输入前缀，选择 **Active** 或 **Not Advertised**，以及
-      可选的过期时间。
+    - 输入前缀，选择 **Active** 或 **Not Advertised**，以及可选的过期时间。
 
-这些对象控制当服务处于活跃状态时，哪些前缀通过全球网络进行通告。
+这些对象控制在服务激活时通过全球网络通告哪些前缀。
 
 ### 网络限制
 
-**Firewall Rules**、**Deny List Rules** 和 **Fast ACLs for Internet
-VIPs** 允许您：
+**防火墙规则**、**拒绝列表规则**和**互联网 VIP 快速 ACL** 允许您：
 
-- 阻止或允许特定流量。
-- 对滥用源进行速率限制。
-- 在纯容量型清洗之外应用额外的 DDoS 防护。
+- 封锁或放行特定流量。
+- 对滥用源进行限速。
+- 在纯容量清洗之外应用额外的 DDoS 防护。

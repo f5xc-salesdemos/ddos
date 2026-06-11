@@ -1,8 +1,8 @@
 ---
 title: ภาพรวม
 description: >-
-  Introduction to configuring GRE tunnels and BGP peering from a BIG-IP HA pair
-  to Cloud DDoS scrubbing centers.
+  บทนำสู่การกำหนดค่าอุโมงค์ GRE และการเชื่อมต่อ BGP จากคู่ BIG-IP HA
+  ไปยังศูนย์ขัดกรอง Cloud DDoS
 sidebar:
   order: 1
 i18n:
@@ -12,10 +12,11 @@ i18n:
 
 ## Cloud GRE/BGP BIG-IP
 
-- กำหนดค่า **GRE tunnels** และ **BGP peering** จาก BIG-IP HA pair
-  (ทำหน้าที่เป็นอุปกรณ์ฝั่งลูกค้า, CPE) โดยมี tunnel อิสระ
-  ต่อแต่ละยูนิต
-- เชื่อมต่อกับศูนย์กรองข้อมูล **Cloud DDoS Mitigation** ใน **routed mode** (L3/L4)
+- กำหนดค่า **อุโมงค์ GRE** และ **การเชื่อมต่อ BGP** จากคู่ BIG-IP HA
+  (ทำหน้าที่เป็นอุปกรณ์ประจำสถานที่ของลูกค้า หรือ CPE) โดยมี
+  อุโมงค์อิสระต่อหนึ่งหน่วย
+- เชื่อมต่อกับศูนย์ขัดกรองของ **Cloud DDoS Mitigation**
+  ในโหมด **routed** (L3/L4)
 
 ```mermaid
 flowchart LR
@@ -41,27 +42,26 @@ flowchart LR
     style SERVERS fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```
 
-## ข้อกำหนดเบื้องต้น
+## ข้อกำหนด
 
-- บริการ Cloud **L3/L4 Routed DDoS Mitigation**
-  (Always On หรือ Always Available) เปิดใช้งานสำหรับ tenant ของคุณ
+- บริการ **Cloud L3/L4 Routed DDoS Mitigation**
+  (Always On หรือ Always Available) ที่เปิดใช้งานสำหรับ tenant ของคุณ
 - BIG-IP ที่มี:
-    - LTM (หรือ networking modules ที่เทียบเท่า)
-    - **Dynamic routing (BGP)** ที่ได้รับ license และเปิดใช้งานแล้ว
-- Routed mode: อย่างน้อยหนึ่ง prefix **ที่ประกาศสาธารณะขนาด /24 (หรือสั้นกว่า)**
-  สำหรับการป้องกัน (IPv6 ขั้นต่ำคือ **/48**)
-    - prefix ที่ได้รับการป้องกัน **ต้องสามารถ route ได้สาธารณะ** (ไม่ใช่ RFC 1918)
-     GRE outer endpoints ต้องสามารถ route ได้สาธารณะเช่นกันเมื่อ tunnel
-     ผ่าน Internet สาธารณะ; การติดตั้งที่ใช้การเชื่อมต่อส่วนตัว
-     (L2, private peering) สามารถใช้ที่อยู่ endpoint แบบ RFC 1918 ได้
-- การเชื่อมต่อระหว่าง data center/router ของคุณกับ
-  ศูนย์กรองข้อมูล Cloud
+    - LTM (หรือโมดูลเครือข่ายที่เทียบเท่า)
+    - **Dynamic routing (BGP)** ที่ได้รับใบอนุญาตและเปิดใช้งานแล้ว
+- โหมด routed: มีคำนำหน้า **publicly advertised /24 (หรือสั้นกว่า)**
+  อย่างน้อยหนึ่งรายการสำหรับการป้องกัน (IPv6 ขั้นต่ำคือ **/48**)
+    - คำนำหน้าที่ได้รับการป้องกัน **ต้องเป็นแบบ publicly routable** (ไม่ใช่ RFC 1918)
+     ปลายทาง GRE ด้านนอกต้องเป็น publicly routable เช่นกัน เมื่ออุโมงค์
+     เชื่อมผ่านอินเทอร์เน็ตสาธารณะ การใช้งานที่ใช้การเชื่อมต่อแบบส่วนตัว
+     (L2, private peering) อาจใช้ที่อยู่ปลายทาง RFC 1918 ได้
+- การเชื่อมต่อระหว่างดาต้าเซ็นเตอร์/เราเตอร์ของคุณกับ
+  ศูนย์ขัดกรอง Cloud
 
 ## สถาปัตยกรรม HA
 
-BIG-IP ถูกติดตั้งเป็น **active/standby HA pair** โดยแต่ละยูนิต
-จะมี GRE tunnel และ BGP session อิสระของตัวเองไปยังทุก
-ศูนย์กรองข้อมูล:
+BIG-IP ถูกติดตั้งในรูปแบบ **คู่ HA active/standby** โดยแต่ละหน่วย
+จะมีอุโมงค์ GRE และเซสชัน BGP อิสระของตัวเองไปยังทุกศูนย์ขัดกรอง:
 
 ```mermaid
 flowchart LR
@@ -93,35 +93,33 @@ flowchart LR
     style SERVERS fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```
 
-- **Tunnel endpoint อิสระ**: แต่ละยูนิต BIG-IP มี outer self IP
-  ที่ไม่ใช่ floating ของตัวเอง (`traffic-group-local-only`) และมีชุด
-  GRE tunnel ของตัวเอง BIG-IP-A ใช้ `xBIGIP_A_OUTER_V4x` และ
-  BIG-IP-B ใช้ `xBIGIP_B_OUTER_V4x` เป็น tunnel endpoint สิ่งนี้หลีกเลี่ยง
-  การพึ่งพา floating IP สำหรับการสร้าง tunnel
-- **BGP session อิสระ**: แต่ละยูนิตรัน BGP session ของตัวเอง
-  ผ่าน tunnel ของตัวเอง BIG-IP-A peer กับ C1-T1 และ C2-T1;
-  BIG-IP-B peer กับ C1-T2 และ C2-T2 เมื่อเกิด failover BGP session
-  ของยูนิต standby ถูกสร้างขึ้นแล้ว ดังนั้น
-  Cloud สามารถเปลี่ยนเส้นทาง traffic ได้ทันที
-- **Config sync**: การกำหนดค่า tunnel, self IP และ routing จะถูก
-  sync ระหว่างยูนิตผ่าน **config-sync** เนื่องจากการกำหนดค่า BGP ของ `imish`
-  เป็นแบบต่อยูนิต แต่ละยูนิตจะจัดการ neighbor statement
-  ของตัวเอง ตรวจสอบว่า sync รวม tmsh object ทั้งหมด
-- **พฤติกรรม BGP แบบ active/standby**: ยูนิต active ประกาศ
-  prefix ที่ได้รับการป้องกันด้วย BGP attribute ปกติ ยูนิต standby
-  สามารถประกาศ prefix เดียวกันด้วย AS-path prepend ที่ยาวกว่า
-  (ทำให้ถูกเลือกน้อยกว่า) หรือระงับการประกาศ
-  จนกว่าจะเกิด failover ประสานแนวทางกับ SOC
-- **Failover convergence**: เมื่อเปิดใช้งาน `graceful-restart` และ
-  tunnel อิสระ ยูนิต active ใหม่จะมี BGP session
-  ที่สร้างขึ้นแล้ว Convergence ขึ้นอยู่กับการเลือก BGP best-path
-  ที่เปลี่ยนไปยังการประกาศของยูนิต active ใหม่ ทดสอบด้วย
-  `run sys failover standby`
+- **ปลายทางอุโมงค์อิสระ**: แต่ละหน่วย BIG-IP มี outer self IP
+  แบบไม่ลอย (`traffic-group-local-only`) และชุดอุโมงค์ GRE ของตัวเอง
+  BIG-IP-A ใช้ `xBIGIP_A_OUTER_V4x` และ BIG-IP-B ใช้ `xBIGIP_B_OUTER_V4x`
+  เป็นปลายทางอุโมงค์ ซึ่งหลีกเลี่ยงการพึ่งพา floating IP สำหรับการ
+  กำหนดต้นทางของอุโมงค์
+- **เซสชัน BGP อิสระ**: แต่ละหน่วยรันเซสชัน BGP ของตัวเองผ่านอุโมงค์
+  ของตัวเอง BIG-IP-A เชื่อมต่อกับ C1-T1 และ C2-T1 ส่วน BIG-IP-B
+  เชื่อมต่อกับ C1-T2 และ C2-T2 เมื่อเกิดการ failover เซสชัน BGP
+  ของหน่วย standby ได้รับการสร้างไว้แล้ว ทำให้ Cloud สามารถ
+  เปลี่ยนเส้นทางทราฟฟิกได้ทันที
+- **Config sync**: การกำหนดค่าอุโมงค์ self IP และการกำหนดเส้นทาง
+  จะถูกซิงค์ระหว่างหน่วยผ่าน **config-sync** เนื่องจากการกำหนดค่า BGP
+  ของ `imish` นั้นเป็นแบบต่อหน่วย แต่ละหน่วยจึงดูแล neighbor statements
+  ของตัวเอง ตรวจสอบว่าการซิงค์ครอบคลุมออบเจกต์ tmsh ทั้งหมด
+- **พฤติกรรม BGP แบบ Active/standby**: หน่วย active จะโฆษณา
+  คำนำหน้าที่ได้รับการป้องกันด้วยแอตทริบิวต์ BGP ปกติ หน่วย standby
+  สามารถโฆษณาคำนำหน้าเดียวกันด้วย AS-path prepend ที่ยาวกว่า
+  (ทำให้มีความสำคัญน้อยกว่า) หรือระงับการโฆษณาจนกว่าจะเกิด failover
+  ประสานแนวทางนี้กับ SOC
+- **การบรรจบตัวของ Failover**: เมื่อเปิดใช้งาน `graceful-restart`
+  และมีอุโมงค์อิสระ หน่วย active ใหม่จะมีเซสชัน BGP ที่สร้างไว้แล้ว
+  การบรรจบตัวขึ้นอยู่กับการเลือก BGP best-path ที่เปลี่ยนไปยัง
+  การโฆษณาของหน่วย active ใหม่ ทดสอบด้วย `run sys failover standby`
 
 :::note
-โมเดล HA แบบ tunnel อิสระด้านบนเป็นแนวทางที่แนะนำ
-สำหรับการทำ redundancy ของอุปกรณ์ฝั่งลูกค้า ตรวจสอบความถูกต้องของ
-การออกแบบ failover เฉพาะของคุณกับทีมบัญชีของคุณก่อนนำไปใช้งาน
-จริง โดยเฉพาะเกี่ยวกับกลยุทธ์ AS-path prepend และระยะเวลา
-BGP reconvergence
+โมเดล HA แบบอุโมงค์อิสระที่กล่าวมาข้างต้นเป็นแนวทางที่แนะนำ
+สำหรับความซ้ำซ้อนของอุปกรณ์ฝั่งลูกค้า ตรวจสอบการออกแบบ failover
+เฉพาะของคุณกับทีมบัญชีก่อนนำไปใช้งานจริง โดยเฉพาะอย่างยิ่ง
+เกี่ยวกับกลยุทธ์ AS-path prepend และระยะเวลาการบรรจบตัวของ BGP ใหม่
 :::

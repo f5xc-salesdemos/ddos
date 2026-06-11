@@ -1,8 +1,8 @@
 ---
 title: Visão Geral
 description: >-
-  Introdução à configuração de túneis GRE e peering BGP de um par BIG-IP HA para
-  centros de limpeza Cloud DDoS.
+  Introdução à configuração de túneis GRE e peering BGP a partir de um par
+  BIG-IP HA para centros de limpeza de DDoS na nuvem.
 sidebar:
   order: 1
 i18n:
@@ -13,75 +13,75 @@ i18n:
 ## Cloud GRE/BGP BIG-IP
 
 - Configure **túneis GRE** e **peering BGP** a partir de um par BIG-IP HA
-  (atuando como equipamento nas instalações do cliente, CPE), com túneis
+  (atuando como equipamento de instalações do cliente, CPE), com túneis
   independentes por unidade.
-- Conecte-se aos centros de limpeza de **Mitigação Cloud DDoS** em **modo roteado** (L3/L4).
+- Conecte-se aos centros de limpeza de **Mitigação de DDoS na Nuvem**
+  em **modo roteado** (L3/L4).
 
 ```mermaid
 flowchart LR
-    INET["Internet<br/>Inbound Traffic"]
+    INET["Internet<br/>Tráfego de Entrada"]
 
     subgraph XC["F5 Distributed Cloud<br/>Global Anycast"]
-        SCRUB["DDoS Scrubbing<br/>L3/L4 Mitigation"]
-        DROP["Attack Traffic<br/>Dropped"]
+        SCRUB["Limpeza de DDoS<br/>Mitigação L3/L4"]
+        DROP["Tráfego de Ataque<br/>Descartado"]
     end
 
     subgraph DC["xDC_NAMEx Data Center"]
-        BIGIP["BIG-IP CPE<br/>(GRE endpoint)"]
-        SERVERS["DDoS-Protected Servers<br/><i>Your public IP block</i>"]
+        BIGIP["BIG-IP CPE<br/>(endpoint GRE)"]
+        SERVERS["Servidores Protegidos contra DDoS<br/><i>Seu bloco de IPs públicos</i>"]
     end
 
-    INET -->|"all traffic to your<br/>public IPs"| SCRUB
-    SCRUB -->|"clean traffic"| BIGIP
-    SCRUB -.->|"malicious traffic"| DROP
+    INET -->|"todo o tráfego para seus<br/>IPs públicos"| SCRUB
+    SCRUB -->|"tráfego limpo"| BIGIP
+    SCRUB -.->|"tráfego malicioso"| DROP
     BIGIP --> SERVERS
     SERVERS --> BIGIP
-    BIGIP -.->|"return traffic<br/>via ISP uplink<br/>(asymmetric path)"| INET
+    BIGIP -.->|"tráfego de retorno<br/>via uplink do ISP<br/>(caminho assimétrico)"| INET
 
     style SERVERS fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```
 
 ## Requisitos
 
-- Serviço de **Mitigação DDoS Roteada L3/L4** Cloud
-  (Always On ou Always Available) habilitado para o seu tenant.
+- Serviço de **Mitigação de DDoS Roteado L3/L4** na Nuvem
+  (Always On ou Always Available) habilitado para seu tenant.
 - BIG-IP com:
     - LTM (ou módulos de rede equivalentes).
     - **Roteamento dinâmico (BGP)** licenciado e habilitado.
-- Modo roteado: pelo menos um prefixo **publicamente anunciado /24 (ou mais curto)**
-  para proteção (mínimo IPv6 é **/48**).
-    - Prefixos protegidos **devem ser publicamente roteáveis** (não RFC 1918).
-     Os endpoints externos GRE também devem ser publicamente roteáveis quando os túneis
-     atravessam a Internet pública; implantações que utilizam conectividade
-     privada (L2, peering privado) podem usar endereços de endpoint
-     RFC 1918.
-- Conectividade entre o seu data center/roteador e o(s)
-  centro(s) de limpeza Cloud.
+- Modo roteado: pelo menos um prefixo **/24 (ou mais curto) publicamente anunciado**
+  para proteção (o mínimo para IPv6 é **/48**).
+    - Os prefixos protegidos **devem ser publicamente roteáveis** (não-RFC 1918).
+     Os endpoints externos do GRE também devem ser publicamente roteáveis quando os túneis
+     atravessam a Internet pública; implantações que utilizam conectividade privada
+     (L2, peering privado) podem usar endereços de endpoint RFC 1918.
+- Conectividade entre seu data center/roteador e o(s)
+  centro(s) de limpeza na Nuvem.
 
 ## Arquitetura HA
 
 O BIG-IP é implantado como um **par HA ativo/standby**, cada unidade
-possui seus próprios túneis GRE independentes e sessões BGP para cada
+recebe seus próprios túneis GRE independentes e sessões BGP para cada
 centro de limpeza:
 
 ```mermaid
 flowchart LR
     subgraph F5XC["F5 Distributed Cloud"]
-        C1["xCENTER_1x scrubbing center"]
-        C2["xCENTER_2x scrubbing center"]
+        C1["Centro de limpeza xCENTER_1x"]
+        C2["Centro de limpeza xCENTER_2x"]
     end
 
     subgraph DC["xDC_NAMEx Data Center"]
         direction TB
-        subgraph UNITA["BIG-IP-A (Active)"]
-            A_C1["C1-T1 tunnel<br/>BGP Established"]
-            A_C2["C2-T1 tunnel<br/>BGP Established"]
+        subgraph UNITA["BIG-IP-A (Ativo)"]
+            A_C1["Túnel C1-T1<br/>BGP Estabelecido"]
+            A_C2["Túnel C2-T1<br/>BGP Estabelecido"]
         end
         subgraph UNITB["BIG-IP-B (Standby)"]
-            B_C1["C1-T2 tunnel<br/>Graceful-Restart Ready"]
-            B_C2["C2-T2 tunnel<br/>Graceful-Restart Ready"]
+            B_C1["Túnel C1-T2<br/>Graceful-Restart Pronto"]
+            B_C2["Túnel C2-T2<br/>Graceful-Restart Pronto"]
         end
-        SERVERS["DDoS-Protected Servers"]
+        SERVERS["Servidores Protegidos contra DDoS"]
     end
 
     C1 -- "GRE C1-T1" --> A_C1
@@ -96,33 +96,32 @@ flowchart LR
 
 - **Endpoints de túnel independentes**: Cada unidade BIG-IP possui seu próprio
   self IP externo não flutuante (`traffic-group-local-only`) e seu
-  próprio conjunto de túneis GRE. O BIG-IP-A usa `xBIGIP_A_OUTER_V4x` e
-  o BIG-IP-B usa `xBIGIP_B_OUTER_V4x` como endpoints de túnel. Isso evita
-  dependência de um IP flutuante para a origem do túnel.
+  próprio conjunto de túneis GRE. O BIG-IP-A utiliza `xBIGIP_A_OUTER_V4x` e
+  o BIG-IP-B utiliza `xBIGIP_B_OUTER_V4x` como endpoints de túnel. Isso evita
+  a dependência de um IP flutuante para a origem dos túneis.
 - **Sessões BGP independentes**: Cada unidade executa suas próprias sessões BGP
   sobre seus próprios túneis. O BIG-IP-A faz peering com C1-T1 e C2-T1;
-  o BIG-IP-B faz peering com C1-T2 e C2-T2. No failover, as sessões BGP
-  da unidade standby já estão estabelecidas, então o
-  Cloud pode redirecionar o tráfego imediatamente.
+  o BIG-IP-B faz peering com C1-T2 e C2-T2. Em caso de failover, as sessões
+  BGP da unidade standby já estão estabelecidas, permitindo que a
+  Nuvem redirecione o tráfego imediatamente.
 - **Sincronização de configuração**: As configurações de túnel, self IP e roteamento são
-  sincronizadas entre as unidades via **config-sync**. Como a configuração BGP
-  do `imish` é por unidade, cada unidade mantém suas próprias
-  declarações de neighbor. Verifique se a sincronização inclui todos os objetos tmsh.
+  sincronizadas entre as unidades via **config-sync**. Como a configuração BGP do `imish`
+  é por unidade, cada unidade mantém seus próprios statements de neighbor. Verifique se a sincronização inclui todos os objetos tmsh.
 - **Comportamento BGP ativo/standby**: A unidade ativa anuncia
   prefixos protegidos com atributos BGP normais. A unidade standby
-  pode anunciar os mesmos prefixos com um AS-path prepend mais longo
-  (tornando-a menos preferida) ou suprimir os anúncios
-  até o failover. Coordene a abordagem com o SOC.
-- **Convergência de failover**: Com `graceful-restart` habilitado e
-  túneis independentes, a nova unidade ativa já possui sessões BGP
-  estabelecidas. A convergência depende da seleção de best-path BGP
-  mudando para os anúncios da unidade recém-ativa. Teste com
+  pode tanto anunciar os mesmos prefixos com um prepend de AS-path mais longo
+  (tornando-os menos preferidos) quanto suprimir os anúncios
+  até o failover. Alinhe a abordagem com o SOC.
+- **Convergência no failover**: Com `graceful-restart` habilitado e
+  túneis independentes, a nova unidade ativa já possui sessões BGP estabelecidas.
+  A convergência depende da seleção do melhor caminho BGP
+  migrando para os anúncios da unidade recém-ativa. Teste com
   `run sys failover standby`.
 
 :::note
-O modelo HA de túneis independentes acima é a abordagem recomendada
-para redundância de dispositivos no lado do cliente. Valide o seu design
-específico de failover com a sua equipe de conta antes de ir para
-produção, particularmente em relação à estratégia de AS-path prepend e
-ao tempo de reconvergência BGP.
+O modelo de HA com túneis independentes descrito acima é a abordagem recomendada
+para redundância de dispositivos no lado do cliente. Valide seu projeto específico
+de failover com sua equipe de conta antes de ir para
+produção, especialmente em relação à estratégia de prepend de AS-path e ao
+tempo de reconvergência BGP.
 :::

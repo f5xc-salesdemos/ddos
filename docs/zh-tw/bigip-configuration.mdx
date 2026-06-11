@@ -1,6 +1,6 @@
 ---
 title: BIG-IP 設定
-description: 用於在 BIG-IP HA 配對上設定 GRE 通道、Self IP 和 BGP 的 tmsh 及 imish 指令。
+description: 用於在 BIG-IP HA 配對上設定 GRE 隧道、自身 IP 及 BGP 的 tmsh 與 imish 指令。
 sidebar:
   order: 5
 i18n:
@@ -10,12 +10,13 @@ i18n:
 
 ## BIG-IP
 
-- （Route Domain 0 範例）
+- （路由域 0 範例）
 
-以下所有指令均在 BIG-IP 上的 **tmsh** 中執行。請根據需要調整物件名稱和 IP 位址。
+以下所有指令均在 BIG-IP 的 **tmsh** 中執行。請依需求調整物件名稱
+與 IP 位址。
 
-有關 BIG-IP 上的一般 GRE 通道設定，請參閱
-[Configuring a GRE Tunnel Using BIG-IP](https://community.f5.com/kb/technicalarticles/configuring-a-generic-routing-encapsulation-gre-tunnel-using-big-ip/289030)。有關與雲端的初始路由設定，請參閱 [K000147949](https://my.f5.com/manage/s/article/K000147949)。
+有關 BIG-IP 上 GRE 隧道的一般設定，請參閱
+[Configuring a GRE Tunnel Using BIG-IP](https://community.f5.com/kb/technicalarticles/configuring-a-generic-routing-encapsulation-gre-tunnel-using-big-ip/289030)。有關 Cloud 的初始路由設定，請參閱 [K000147949](https://my.f5.com/manage/s/article/K000147949)。
 
 ### tmsh
 
@@ -24,11 +25,11 @@ i18n:
 root@(bigip)(cfg-sync Standalone)(Active)(/Common)(tmos)#
 ```
 
-### 外部 Self IP
+### 外部自身 IP
 
 GRE 端點
 
-這些是每台 BIG-IP 設備上作為 **GRE 通道端點**使用的 IP 位址，通常位於外部 VLAN 上。每台設備都有其專屬的非浮動外部 Self IP（`traffic-group-local-only`）：
+這些是每台 BIG-IP 裝置上用作 **GRE 隧道端點**的 IP，通常位於外部 VLAN。每台裝置各有其專屬的非浮動外部自身 IP（`traffic-group-local-only`）：
 
 **BIG-IP-A：**
 
@@ -62,11 +63,12 @@ create net self xc-ddos-v6-self-b \
   address xBIGIP_B_OUTER_V6x/64
 ```
 
-### GRE 通道
+### GRE 隧道
 
-每條通道從一台 BIG-IP 設備指向一個雲端清洗中心端點。每台設備建立**兩條通道**（分別連至每個地理位置的清洗中心），整個 HA 配對總共有**四條邏輯通道**：
+每條隧道從一台 BIG-IP 裝置指向一個 Cloud
+清洗中心端點。**每台裝置建立兩條隧道**（各指向一個地理位置的清洗中心），整個 HA 配對共有**四條邏輯隧道**：
 
-**通道 C1-T1 — BIG-IP-A 至 xCENTER_1x：**
+**隧道 C1-T1 — BIG-IP-A 至 xCENTER_1x：**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c1t1-v4 \
@@ -80,7 +82,7 @@ create net tunnels tunnel xc-ddos-c1t1-v6 \
   remote-address xXC_C1_OUTER_V6x
 ```
 
-**通道 C2-T1 — BIG-IP-A 至 xCENTER_2x：**
+**隧道 C2-T1 — BIG-IP-A 至 xCENTER_2x：**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c2t1-v4 \
@@ -94,7 +96,7 @@ create net tunnels tunnel xc-ddos-c2t1-v6 \
   remote-address xXC_C2_OUTER_V6x
 ```
 
-**通道 C1-T2 — BIG-IP-B 至 xCENTER_1x：**
+**隧道 C1-T2 — BIG-IP-B 至 xCENTER_1x：**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c1t2-v4 \
@@ -108,7 +110,7 @@ create net tunnels tunnel xc-ddos-c1t2-v6 \
   remote-address xXC_C1_OUTER_V6x
 ```
 
-**通道 C2-T2 — BIG-IP-B 至 xCENTER_2x：**
+**隧道 C2-T2 — BIG-IP-B 至 xCENTER_2x：**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c2t2-v4 \
@@ -122,11 +124,11 @@ create net tunnels tunnel xc-ddos-c2t2-v6 \
   remote-address xXC_C2_OUTER_V6x
 ```
 
-通道名稱（`xc-ddos-c1t1-v4` 等）為任意命名；請使用您自己的命名慣例。
+隧道名稱（`xc-ddos-c1t1-v4` 等）為任意命名；請使用您自己的命名規則。
 
-### 設定通道 MTU
+### 設定隧道 MTU
 
-GRE 封裝會增加額外開銷（IPv4 外層 24 位元組，IPv6 外層 44 位元組）。若未明確設定 MTU，接近 1500 位元組的封包將會被分片或丟棄。請設定通道 MTU 以考慮封裝開銷：
+GRE 封裝會增加額外負擔（IPv4 外層為 24 位元組，IPv6 外層為 44 位元組）。若未明確設定 MTU，接近 1500 位元組的封包將會分片或遭丟棄。請設定隧道 MTU 以因應封裝的額外負擔：
 
 ```shell title="tmsh"
 modify net tunnels tunnel xc-ddos-c1t1-v4 mtu 1476
@@ -140,12 +142,13 @@ modify net tunnels tunnel xc-ddos-c2t2-v6 mtu 1456
 ```
 
 :::caution[路徑 MTU]
-上述數值假設外部網路的路徑 MTU 為 1500 位元組。若您的上游路徑 MTU 較小，請進行調整。請確保任何中間設備上**未阻擋** ICMP「destination unreachable / fragmentation needed」（type 3, code 4）訊息，以確保路徑 MTU 探索（PMTUD）功能正常運作。
+上述數值假設外部網路的路徑 MTU 為 1500 位元組。
+若您的上游路徑 MTU 較小，請進行調整。請確保任何中間裝置均**未**封鎖 ICMP「目標不可達／需要分片」（類型 3，代碼 4）封包，以確保路徑 MTU 探索（PMTUD）正常運作。
 :::
 
 ### GRE 防偽造（上游 ACL）
 
-GRE（IP 協定 47）不提供身份驗證。任何知道外部 IP 配對的人都可以將流量注入通道。請在上游路由器或防火牆上套用 ACL，將入站 GRE 限制為僅允許預期的雲端清洗中心來源 IP：
+GRE（IP 協定 47）不提供驗證機制。任何知悉外部 IP 配對的人均可向隧道注入流量。請在上游路由器或防火牆上套用 ACL，以將入站 GRE 限制為僅來自預期的 Cloud 清洗中心來源 IP：
 
 ```shell title="Cisco IOS"
 ! Example upstream router ACL (Cisco IOS style)
@@ -159,14 +162,14 @@ ip access-list extended ALLOW-XC-GRE
 ```
 
 :::note
-請根據您的路由器平台調整語法。相同的原則適用於 IPv6 GRE 通道的 IPv6 ACL。BIG-IP-A（`xBIGIP_A_OUTER_V4x`）和 BIG-IP-B（`xBIGIP_B_OUTER_V4x`）的外部 IP 都必須被允許作為 GRE 目的地。
+請依您的路由器平台調整語法。相同原則同樣適用於 IPv6 GRE 隧道的 IPv6 ACL。BIG-IP-A（`xBIGIP_A_OUTER_V4x`）與 BIG-IP-B（`xBIGIP_B_OUTER_V4x`）的外部 IP 均須被允許作為 GRE 目標。
 :::
 
-### 內部 Self IP（BGP 對等連線）
+### 內部自身 IP（BGP 對等）
 
-分配內部 IP 位址（位於 GRE 通道內部），用於與雲端建立 **BGP 會話**。`allow-service` 必須包含 `tcp:179`（BGP），對等會話才能建立。在內部 Self IP 上新增 `icmp:any` 可啟用通過通道的 PMTUD 和連通性測試：
+指定內部 IP 位址（GRE 隧道內部），用於與 Cloud 建立 **BGP 工作階段**。`allow-service` 必須包含 `tcp:179`（BGP），以便建立對等工作階段。在內部自身 IP 上新增 `icmp:any` 可透過隧道啟用 PMTUD 與可達性測試：
 
-**通道 C1-T1 — BIG-IP-A 至 xCENTER_1x：**
+**隧道 C1-T1 — BIG-IP-A 至 xCENTER_1x：**
 
 ```shell title="tmsh"
 create net self xc-ddos-c1t1-inner-v4 \
@@ -182,7 +185,7 @@ create net self xc-ddos-c1t1-inner-v6 \
   address xBIGIP_C1_T1_INNER_V6x/64
 ```
 
-**通道 C2-T1 — BIG-IP-A 至 xCENTER_2x：**
+**隧道 C2-T1 — BIG-IP-A 至 xCENTER_2x：**
 
 ```shell title="tmsh"
 create net self xc-ddos-c2t1-inner-v4 \
@@ -198,7 +201,7 @@ create net self xc-ddos-c2t1-inner-v6 \
   address xBIGIP_C2_T1_INNER_V6x/64
 ```
 
-**通道 C1-T2 — BIG-IP-B 至 xCENTER_1x：**
+**隧道 C1-T2 — BIG-IP-B 至 xCENTER_1x：**
 
 ```shell title="tmsh"
 create net self xc-ddos-c1t2-inner-v4 \
@@ -214,7 +217,7 @@ create net self xc-ddos-c1t2-inner-v6 \
   address xBIGIP_C1_T2_INNER_V6x/64
 ```
 
-**通道 C2-T2 — BIG-IP-B 至 xCENTER_2x：**
+**隧道 C2-T2 — BIG-IP-B 至 xCENTER_2x：**
 
 ```shell title="tmsh"
 create net self xc-ddos-c2t2-inner-v4 \
@@ -232,15 +235,15 @@ create net self xc-ddos-c2t2-inner-v6 \
 
 ### BGP
 
-使用 [imish](https://techdocs.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/big-ip-tmos-routing-administration-14-0-0/11.html) 為 Route Domain 0 設定 BGP。
+使用 [imish](https://techdocs.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/big-ip-tmos-routing-administration-14-0-0/11.html) 為路由域 0 設定 BGP。
 
-:::note[每台設備的設定]
-`imish` BGP 設定為每台 BIG-IP 設備的本機設定。每台設備僅設定其自身通道的鄰居：
+:::note[各裝置獨立設定]
+`imish` BGP 設定為各 BIG-IP 裝置的本機設定。每台裝置僅為其自身的隧道設定鄰居：
 
-- **BIG-IP-A** 設定 C1-T1 和 C2-T1 鄰居。
-- **BIG-IP-B** 設定 C1-T2 和 C2-T2 鄰居。
+- **BIG-IP-A** 設定 C1-T1 與 C2-T1 鄰居。
+- **BIG-IP-B** 設定 C1-T2 與 C2-T2 鄰居。
 
-`router-id` 在每台設備上必須唯一（使用每台設備自身的外部 Self IP）。
+`router-id` 每台裝置必須唯一（使用各裝置自身的外部自身 IP）。
 :::
 
 1. 進入 RD 0 的 imish：
@@ -249,7 +252,7 @@ create net self xc-ddos-c2t2-inner-v6 \
    tmsh run /util imish -r 0
    ```
 
-1. 進入特權模式和設定模式：
+1. 進入特權模式與設定模式：
 
    ```shell title="imish"
    localhost.localdomain[0]> enable
@@ -258,10 +261,10 @@ create net self xc-ddos-c2t2-inner-v6 \
 
 1. BGP 設定範例：
 
-:::caution[替換佔位符值]
-- `xCUSTOMER_ASNx` — 您在 ARIN（或同等 RIR）註冊的公用 ASN。路由式 DDoS **需要公用 ASN**，因為雲端將在全球範圍內公告您的前綴。私用 ASN（64512-65534 / 4200000000-4294967294）僅在 SOC 明確支援您的部署使用私用 ASN 對等連線時才可接受。
-- `xF5_XC_ASNx` — 雲端 ASN（由 SOC 提供）。
-- `xBGP_PASSWORDx` — 約定的 BGP MD5 密碼（或與主控台「default secret」匹配）。切勿將此密碼重複用於其他服務。
+:::caution[請替換佔位符數值]
+- `xCUSTOMER_ASNx` — 您在 ARIN（或對應 RIR）登記的公用 ASN。路由 DDoS **必須使用公用 ASN**，因為 Cloud 將在全球宣告您的前綴。私有 ASN（64512-65534 / 4200000000-4294967294）僅在 SOC 明確支援您的部署使用私有 ASN 對等時才可接受。
+- `xF5_XC_ASNx` — Cloud ASN（由 SOC 提供）。
+- `xBGP_PASSWORDx` — 雙方約定的 BGP MD5 密碼（或匹配主控台的「預設金鑰」）。切勿將此密碼重複用於其他服務。
 :::
 
 **BIG-IP-A**（router-id `xBIGIP_A_OUTER_V4x`，鄰居 C1-T1 + C2-T1）：
@@ -388,21 +391,21 @@ route-map route-to-cloud-ipv6 permit 10
   set origin igp
 ```
 
-**關鍵 BGP 設定說明：**
+**BGP 主要設定說明：**
 
-- **`timers 10 30`** — 每 10 秒發送 Keepalive，保持時間 30 秒。預設值（60 / 180）對於 DDoS 緩解故障切換而言太慢。請與 SOC 協調計時器值以確保雙方匹配。
-- **`ttl-security hops 1`** — 啟用 GTSM（[RFC 5082](https://datatracker.ietf.org/doc/html/rfc5082)）。由於 BGP 會話是透過 GRE 通道的單跳連線，這可透過要求入站 BGP 封包的 TTL = 255 來防止遠端 BGP 偽造。
-- **`maximum-prefix 10 warning-only`** — 縱深防禦保護措施。即使入站前綴列表拒絕所有路由，當對等端意外發送前綴時仍會產生警告。
-- **`redistribute kernel`** — 透過 route-map 將 `null0` 靜態路由注入 BGP。另一種方法是使用明確的 `network` 陳述式（例如 `network xPROTECTED_PREFIX_V4x`），這更為精確，因為無論其他核心路由如何，僅會公告確切的前綴。兩種方法都可行；此處展示的是搭配嚴格 route-map 的 `redistribute kernel` 以提供彈性。
+- **`timers 10 30`** — 每 10 秒傳送一次 Keepalive，保持時間為 30 秒。預設值（60 / 180）對於 DDoS 緩解的故障切換而言過於緩慢。請與 SOC 協調計時器數值以確保雙方一致。
+- **`ttl-security hops 1`** — 啟用 GTSM（[RFC 5082](https://datatracker.ietf.org/doc/html/rfc5082)）。由於 BGP 工作階段為 GRE 隧道上的單跳，此設定要求入站 BGP 封包的 TTL = 255，從而防止遠端 BGP 偽造。
+- **`maximum-prefix 10 warning-only`** — 縱深防禦保護措施。即使入站前綴清單已拒絕所有路由，若對等端意外傳送前綴，仍會產生警告。
+- **`redistribute kernel`** — 透過 route-map 將 `null0` 靜態路由注入 BGP。另一種方式是使用明確的 `network` 陳述式（例如 `network xPROTECTED_PREFIX_V4x`），這種方式更為精確，因為無論其他核心路由為何，都只會宣告確切的前綴。兩種方式均可使用；此處顯示的是帶有嚴格 route-map 的 `redistribute kernel`，以提供更大彈性。
 
-:::tip[BFD（雙向轉發偵測）]
-如果您的 BIG-IP 版本支援透過 GRE 通道的 BFD，請啟用它以實現亞秒級故障偵測：
+:::tip[BFD（雙向轉送偵測）]
+若您的 BIG-IP 版本支援 GRE 隧道上的 BFD，請啟用以實現次秒級故障偵測：
 
 ```shell
 neighbor cloud fall-over bfd
 ```
 
-BFD 提供比單獨使用 BGP keepalive 計時器更快的收斂速度。啟用前請向您的 BIG-IP 版本和 SOC 確認 BFD 支援情況。
+BFD 可提供比單純依賴 BGP keepalive 計時器更快的收斂速度。在啟用前，請確認您的 BIG-IP 版本及 SOC 是否支援 BFD。
 :::
 
-具有較高管理距離（201）的 `null0` 靜態路由確保前綴存在於**核心路由表**中，以便透過 BGP 重新分發至雲端，而不會影響非攻擊條件下的正常路由。如果受保護的前綴已經從另一個具有較低管理距離的來源存在於路由表中，`null0` 路由將不會啟用，重新分發可能會失敗 — 設定完成後請使用 `show ip route` 進行驗證。
+`null0` 靜態路由使用較高的管理距離（201），確保前綴存在於**核心路由表**中，以便透過 BGP 將其重新分發至 Cloud，同時不影響非攻擊狀態下的正常路由。若受保護的前綴已透過另一個管理距離較低的來源存在於路由表中，則 `null0` 路由將不會生效，且重新分發可能會失敗——請在設定完成後使用 `show ip route` 進行驗證。

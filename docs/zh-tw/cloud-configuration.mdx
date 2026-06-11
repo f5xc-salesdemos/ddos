@@ -1,6 +1,6 @@
 ---
-title: 雲端配置
-description: 在雲端主控台中配置通道、ASN 和路由，以實現路由式 DDoS 緩解。
+title: 雲端設定
+description: 在 Cloud Console 中設定通道、ASN 及路由，以進行路由式 DDoS 緩解。
 sidebar:
   order: 4
 i18n:
@@ -10,80 +10,67 @@ i18n:
 
 ## XC（使用者介面）
 
-使用 Web 介面配置**雲端**側，請參考
-[L3/L4 路由式 DDoS 緩解](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)指南。
+請依據 [L3/L4 路由式 DDoS 緩解](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation) 指南，使用網頁介面設定**雲端**端。
 
 ### 啟用 DDoS 工作區
 
-在您配置通道和 BGP 之前：
+在設定通道與 BGP 之前：
 
-1. 聯繫雲端團隊（透過 `sales@example.com`
-   或您的客戶團隊）以：
+1. 聯絡雲端團隊（透過 `sales@example.com` 或您的客戶團隊）以：
     - 為您的租戶啟用 **Routed DDoS Mitigation** 工作區。
     - 提供：
-        - 您的**公開 IP 網段**（IPv4 為 /24 或更短，IPv6 為 /48 或
-          更短）以及所有權證明（或 LOA）。
-        - 您的 **ASN**（必須由 ARIN 或同等註冊機構核發）。
-        - **IRR** 註冊（RIPE、ARIN、APNIC 等）以及 RPKI 儲存庫中的 **ROA**。
-        - 所需的**乾淨流量回傳方式**（GRE 通道、Layer 2、
-          透過 Equinix 的私有對等連線等）。
-        - 需要保護的資料中心位置和路由器。
-        - 路由公告所需的 **AS-Path 前置附加**。
-        - 任何 **BGP communities**、路由偏好設定或 **AS-SET**
+        - 您的**公開 IP 網段**（IPv4 為 /24 或更短，IPv6 為 /48 或更短）及所有權證明（或 LOA）。
+        - 您的 **ASN**（須由 ARIN 或同等機構核發）。
+        - **IRR** 登錄資訊（RIPE、ARIN、APNIC 等）及 RPKI 儲存庫中的 **ROA**。
+        - 所需的**清潔流量回傳方式**（GRE 通道、第二層、透過 Equinix 的私有對等互連等）。
+        - 需保護的資料中心位置與路由器。
+        - 路由公告所需的 **AS-Path 前置碼**。
+        - 任何 **BGP 社群**、路由偏好設定或 **AS-SET**
 
-1. SOC 將會佈建：
+1. SOC 將進行以下佈建：
     - 通道
     - ASN
     - 受保護的前綴
     - 路由公告選項
-    - 快速 ACL / 防火牆策略（視需要而定）
+    - 快速 ACL / 防火牆政策（視需要）
 
 ### 通道
 
-1. 登入 [雲端主控台](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)，
-   並從服務選擇器中選取 **Routed DDoS**。
-1. 前往 **Manage > Tunnels > Add Tunnel**，並配置：
-    - **Location Name** 和 **Availability Zone**（預設為 Zone 1）。
+1. 登入 [Cloud Console](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation) 並從服務選擇器中選取 **Routed DDoS**。
+1. 前往 **Manage > Tunnels > Add Tunnel**，並進行以下設定：
+    - **Location Name** 及 **Availability Zone**（預設為 Zone 1）。
     - **Bandwidth Max in MB**。
     - **Tunnel Type**：
         - **GRE Over IPv4**：用於 IPv4 外層通道。
         - **GRE Over IPv6**：用於 IPv6 外層通道。
         - **IP Over IP**：用於 IPv4-in-IPv4 封裝。
         - **IPv6 Over IPv6**：用於 IPv6-in-IPv6 封裝。
-    - **Customer Endpoint IP**：BIG-IP 的外部位址（外層 self
-      IP，當通道經過公共網際網路時必須可公開路由）。
-    - 選用：IPv4/IPv6 互連、分片、keepalive（預設皆
-      為停用）。
+    - **Customer Endpoint IP**：BIG-IP 的外部位址（外層 self IP，當通道穿越公共網際網路時，須為可公開路由的位址）。
+    - 選填：IPv4/IPv6 互連、分段、保活（預設均停用）。
 1. 在 **Tunnel BGP Information** 下：
-    - 選取一個 **ASN object**（您的 ASN）。
-    - 設定 **Customer Peer Secret Override**：使用 Use Default Secret
-      （預設）、BGP Password Override（遮蔽或明文），或
-      No Secret。
-    - 如果與預設值不同，請設定 **Holddown Timer** 值（以秒為單位）。
+    - 選取 **ASN 物件**（即您的 ASN）。
+    - 設定 **Customer Peer Secret Override**：使用預設密鑰（Default Secret）、BGP 密碼覆寫（加密或明文），或無密鑰（No Secret）。
+    - 若與預設值不同，請設定 **Holddown Timer** 的秒數值。
 
-SOC 可能會為您預先建立這些通道物件；您只需在 BIG-IP 上匹配
-**端點 IP** 和 BGP 設定即可。
+SOC 可能已預先為您建立這些通道物件；您只需在 BIG-IP 上比對**端點 IP** 與 BGP 設定即可。
 
-### ASN 和路由
+### ASN 與路由
 
-- **ASN**：-> **Manage > ASNs > Add ASN**。
-    - 輸入您的 ASN 並確保 BGP 已啟用。
+- **ASN**：前往 **Manage > ASNs > Add ASN**。
+    - 輸入您的 ASN 並確認 BGP 已啟用。
 
-- **前綴**：-> **Manage > Prefixes > Add Prefix**。
-    - 輸入每個 IP 前綴並將其與您的 ASN 關聯。
+- **前綴**：前往 **Manage > Prefixes > Add Prefix**。
+    - 輸入每個 IP 前綴並將其與您的 ASN 建立關聯。
 
-- **路由公告** -> **Manage > Route Advertisement > Add Route Advertisement**。
-    - 輸入前綴，選擇 **Active** 或 **Not Advertised**，以及
-      選用的到期時間。
+- **路由公告**：前往 **Manage > Route Advertisement > Add Route Advertisement**。
+    - 輸入前綴，選擇 **Active** 或 **Not Advertised**，並視需要設定到期時間。
 
-這些物件控制當服務啟用時，哪些前綴會透過全球
-網路進行公告。
+這些物件控制服務啟用時，哪些前綴會透過全球網路進行公告。
 
 ### 網路限制
 
-**Firewall Rules**、**Deny List Rules** 和 **Fast ACLs for Internet
-VIPs** 可讓您：
+**防火牆規則**、**拒絕清單規則**及**網際網路 VIP 的快速 ACL** 可讓您：
 
 - 封鎖或允許特定流量。
 - 對濫用來源進行速率限制。
-- 在純流量型清洗之外套用額外的 DDoS 防護。
+- 在純流量清洗之外，套用額外的 DDoS 防護措施。

@@ -1,6 +1,6 @@
 ---
 title: BIG-IP 配置
-description: 用于在 BIG-IP HA 对上配置 GRE 隧道、Self IP 和 BGP 的 tmsh 和 imish 命令。
+description: 用于在 BIG-IP HA 对上配置 GRE 隧道、自身 IP 和 BGP 的 tmsh 和 imish 命令。
 sidebar:
   order: 5
 i18n:
@@ -10,12 +10,12 @@ i18n:
 
 ## BIG-IP
 
-- （Route Domain 0 示例）
+- （路由域 0 示例）
 
-以下所有命令均在 BIG-IP 的 **tmsh** 中运行。请根据需要调整对象名称和 IP 地址。
+以下所有命令均在 BIG-IP 的 **tmsh** 中执行。请根据需要调整对象名称和 IP 地址。
 
-有关 BIG-IP 上 GRE 隧道的一般配置，请参阅
-[Configuring a GRE Tunnel Using BIG-IP](https://community.f5.com/kb/technicalarticles/configuring-a-generic-routing-encapsulation-gre-tunnel-using-big-ip/289030)。有关与 Cloud 的初始路由配置设置，请参阅 [K000147949](https://my.f5.com/manage/s/article/K000147949)。
+有关 BIG-IP 上 GRE 隧道的常规配置，请参阅
+[使用 BIG-IP 配置 GRE 隧道](https://community.f5.com/kb/technicalarticles/configuring-a-generic-routing-encapsulation-gre-tunnel-using-big-ip/289030)。有关与云端的初始路由配置设置，请参阅 [K000147949](https://my.f5.com/manage/s/article/K000147949)。
 
 ### tmsh
 
@@ -24,11 +24,11 @@ i18n:
 root@(bigip)(cfg-sync Standalone)(Active)(/Common)(tmos)#
 ```
 
-### 外部 Self IP
+### 外部自身 IP
 
 GRE 端点
 
-这些是每台 BIG-IP 设备上用作 **GRE 隧道端点**的 IP 地址，通常位于外部 VLAN 上。每台设备有自己的非浮动外部 Self IP（`traffic-group-local-only`）：
+以下 IP 是每台 BIG-IP 设备上用作 **GRE 隧道端点**的地址，通常位于外部 VLAN 上。每台设备拥有各自独立的非浮动外部自身 IP（`traffic-group-local-only`）：
 
 **BIG-IP-A：**
 
@@ -64,9 +64,9 @@ create net self xc-ddos-v6-self-b \
 
 ### GRE 隧道
 
-每条隧道从一台 BIG-IP 设备指向一个 Cloud 清洗中心端点。每台设备创建**两条隧道**（分别连接到每个地理位置的清洗中心），HA 对总共有**四条逻辑隧道**：
+每条隧道从一台 BIG-IP 设备指向一个云清洗中心端点。**每台设备创建两条隧道**（分别指向两个地理位置不同的清洗中心），整个 HA 对共计 **四条逻辑隧道**：
 
-**隧道 C1-T1 — BIG-IP-A 到 xCENTER_1x：**
+**隧道 C1-T1 — BIG-IP-A 至 xCENTER_1x：**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c1t1-v4 \
@@ -80,7 +80,7 @@ create net tunnels tunnel xc-ddos-c1t1-v6 \
   remote-address xXC_C1_OUTER_V6x
 ```
 
-**隧道 C2-T1 — BIG-IP-A 到 xCENTER_2x：**
+**隧道 C2-T1 — BIG-IP-A 至 xCENTER_2x：**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c2t1-v4 \
@@ -94,7 +94,7 @@ create net tunnels tunnel xc-ddos-c2t1-v6 \
   remote-address xXC_C2_OUTER_V6x
 ```
 
-**隧道 C1-T2 — BIG-IP-B 到 xCENTER_1x：**
+**隧道 C1-T2 — BIG-IP-B 至 xCENTER_1x：**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c1t2-v4 \
@@ -108,7 +108,7 @@ create net tunnels tunnel xc-ddos-c1t2-v6 \
   remote-address xXC_C1_OUTER_V6x
 ```
 
-**隧道 C2-T2 — BIG-IP-B 到 xCENTER_2x：**
+**隧道 C2-T2 — BIG-IP-B 至 xCENTER_2x：**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c2t2-v4 \
@@ -122,11 +122,11 @@ create net tunnels tunnel xc-ddos-c2t2-v6 \
   remote-address xXC_C2_OUTER_V6x
 ```
 
-隧道名称（`xc-ddos-c1t1-v4` 等）是任意的；请使用您自己的命名规范。
+隧道名称（`xc-ddos-c1t1-v4` 等）可自由定义，请使用您自己的命名规范。
 
 ### 设置隧道 MTU
 
-GRE 封装会增加开销（IPv4 外层 24 字节，IPv6 外层 44 字节）。如果没有显式设置 MTU，接近 1500 字节的数据包将会分片或被丢弃。设置隧道 MTU 以考虑封装开销：
+GRE 封装会增加额外开销（IPv4 外层 24 字节，IPv6 外层 44 字节）。若未显式设置 MTU，接近 1500 字节的数据包将发生分片或被丢弃。请设置隧道 MTU 以计入封装开销：
 
 ```shell title="tmsh"
 modify net tunnels tunnel xc-ddos-c1t1-v4 mtu 1476
@@ -140,15 +140,15 @@ modify net tunnels tunnel xc-ddos-c2t2-v6 mtu 1456
 ```
 
 :::caution[路径 MTU]
-以上值假设外部网络的路径 MTU 为 1500 字节。如果您的上游路径 MTU 较小，请相应调整。确保任何中间设备上**未**阻止 ICMP"目标不可达/需要分片"（类型 3，代码 4），以使路径 MTU 发现（PMTUD）能够正常工作。
+上述数值假设外部网络的路径 MTU 为 1500 字节。如果上行链路的路径 MTU 更小，请相应调整。确保任何中间设备均**未**屏蔽 ICMP"目标不可达/需要分片"（类型 3，代码 4）消息，以使路径 MTU 发现（PMTUD）功能正常运作。
 :::
 
-### GRE 防欺骗（上游 ACL）
+### GRE 防欺骗（上行 ACL）
 
-GRE（IP 协议 47）不提供身份验证。任何知道外层 IP 对的人都可以向隧道注入流量。在上游路由器或防火墙上应用 ACL，将入站 GRE 限制为仅允许预期的 Cloud 清洗中心源 IP：
+GRE（IP 协议 47）不提供身份验证。任何知悉外层 IP 对的人均可向隧道注入流量。请在上行路由器或防火墙上应用 ACL，将入站 GRE 流量限制为仅来自预期云清洗中心源 IP：
 
 ```shell title="Cisco IOS"
-! Example upstream router ACL (Cisco IOS style)
+! 上行路由器 ACL 示例（Cisco IOS 风格）
 ip access-list extended ALLOW-XC-GRE
   permit gre host xXC_C1_OUTER_V4x host xBIGIP_A_OUTER_V4x
   permit gre host xXC_C2_OUTER_V4x host xBIGIP_A_OUTER_V4x
@@ -159,14 +159,14 @@ ip access-list extended ALLOW-XC-GRE
 ```
 
 :::note
-请根据您的路由器平台调整语法。同样的原则适用于 IPv6 GRE 隧道的 IPv6 ACL。BIG-IP-A（`xBIGIP_A_OUTER_V4x`）和 BIG-IP-B（`xBIGIP_B_OUTER_V4x`）的外部 IP 都必须被允许作为 GRE 目标。
+请根据您的路由器平台调整语法。同样的原则适用于 IPv6 GRE 隧道的 IPv6 ACL。BIG-IP-A（`xBIGIP_A_OUTER_V4x`）和 BIG-IP-B（`xBIGIP_B_OUTER_V4x`）的外部 IP 均须被允许作为 GRE 目标地址。
 :::
 
-### 内部 Self IP（BGP 对等）
+### 内部自身 IP（BGP 对等）
 
-分配内部 IP 地址（位于 GRE 隧道内部），用于与 Cloud 建立 **BGP 会话**。`allow-service` 必须包含 `tcp:179`（BGP）才能建立对等会话。在内部 Self IP 上添加 `icmp:any` 可以启用通过隧道的 PMTUD 和可达性测试：
+为 GRE 隧道内部分配内部 IP 地址，这些地址将与云端建立 **BGP 会话**。`allow-service` 必须包含 `tcp:179`（BGP），以便对等会话建立。在内部自身 IP 上添加 `icmp:any` 可通过隧道启用 PMTUD 和可达性测试：
 
-**隧道 C1-T1 — BIG-IP-A 到 xCENTER_1x：**
+**隧道 C1-T1 — BIG-IP-A 至 xCENTER_1x：**
 
 ```shell title="tmsh"
 create net self xc-ddos-c1t1-inner-v4 \
@@ -182,7 +182,7 @@ create net self xc-ddos-c1t1-inner-v6 \
   address xBIGIP_C1_T1_INNER_V6x/64
 ```
 
-**隧道 C2-T1 — BIG-IP-A 到 xCENTER_2x：**
+**隧道 C2-T1 — BIG-IP-A 至 xCENTER_2x：**
 
 ```shell title="tmsh"
 create net self xc-ddos-c2t1-inner-v4 \
@@ -198,7 +198,7 @@ create net self xc-ddos-c2t1-inner-v6 \
   address xBIGIP_C2_T1_INNER_V6x/64
 ```
 
-**隧道 C1-T2 — BIG-IP-B 到 xCENTER_1x：**
+**隧道 C1-T2 — BIG-IP-B 至 xCENTER_1x：**
 
 ```shell title="tmsh"
 create net self xc-ddos-c1t2-inner-v4 \
@@ -214,7 +214,7 @@ create net self xc-ddos-c1t2-inner-v6 \
   address xBIGIP_C1_T2_INNER_V6x/64
 ```
 
-**隧道 C2-T2 — BIG-IP-B 到 xCENTER_2x：**
+**隧道 C2-T2 — BIG-IP-B 至 xCENTER_2x：**
 
 ```shell title="tmsh"
 create net self xc-ddos-c2t2-inner-v4 \
@@ -232,15 +232,15 @@ create net self xc-ddos-c2t2-inner-v6 \
 
 ### BGP
 
-使用 [imish](https://techdocs.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/big-ip-tmos-routing-administration-14-0-0/11.html) 为 Route Domain 0 配置 BGP。
+使用 [imish](https://techdocs.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/big-ip-tmos-routing-administration-14-0-0/11.html) 为路由域 0 配置 BGP。
 
-:::note[每台设备的配置]
-`imish` BGP 配置是每台 BIG-IP 设备本地的。每台设备只配置其自身隧道的邻居：
+:::note[按设备配置]
+`imish` BGP 配置对每台 BIG-IP 设备而言是本地的。每台设备仅为其自身的隧道配置邻居：
 
 - **BIG-IP-A** 配置 C1-T1 和 C2-T1 邻居。
 - **BIG-IP-B** 配置 C1-T2 和 C2-T2 邻居。
 
-`router-id` 必须在每台设备上唯一（使用每台设备自己的外部 Self IP）。
+每台设备的 `router-id` 必须唯一（使用各设备自身的外部自身 IP）。
 :::
 
 1. 进入 RD 0 的 imish：
@@ -259,9 +259,9 @@ create net self xc-ddos-c2t2-inner-v6 \
 1. BGP 配置示例：
 
 :::caution[替换占位符值]
-- `xCUSTOMER_ASNx` — 您在 ARIN（或等效 RIR）注册的公共 ASN。路由式 DDoS **需要公共 ASN**，因为 Cloud 将在全球通告您的前缀。私有 ASN（64512-65534 / 4200000000-4294967294）仅在 SOC 明确支持您的部署使用私有 ASN 对等时才可接受。
-- `xF5_XC_ASNx` — Cloud ASN（由 SOC 提供）。
-- `xBGP_PASSWORDx` — 商定的 BGP MD5 密码（或匹配控制台的"默认密钥"）。切勿将此密码用于其他服务。
+- `xCUSTOMER_ASNx` — 您在 ARIN（或同等 RIR）注册的公共 ASN。路由式 DDoS 防护**必须使用公共 ASN**，因为云端将在全球范围内宣告您的前缀。仅当 SOC 明确支持您的部署使用私有 ASN 对等时，才可接受私有 ASN（64512-65534 / 4200000000-4294967294）。
+- `xF5_XC_ASNx` — 云端 ASN（由 SOC 提供）。
+- `xBGP_PASSWORDx` — 协商一致的 BGP MD5 密码（或匹配控制台中的"默认密钥"）。切勿将此密码用于其他服务。
 :::
 
 **BIG-IP-A**（router-id `xBIGIP_A_OUTER_V4x`，邻居 C1-T1 + C2-T1）：
@@ -390,19 +390,19 @@ route-map route-to-cloud-ipv6 permit 10
 
 **关键 BGP 设置说明：**
 
-- **`timers 10 30`** — 每 10 秒发送 Keepalive，保持时间 30 秒。默认值（60 / 180）对于 DDoS 缓解故障切换来说太慢了。请与 SOC 协调计时器值，以确保双方匹配。
-- **`ttl-security hops 1`** — 启用 GTSM（[RFC 5082](https://datatracker.ietf.org/doc/html/rfc5082)）。由于 BGP 会话是通过 GRE 隧道的单跳连接，这通过要求入站 BGP 数据包的 TTL = 255 来防止远程 BGP 欺骗。
-- **`maximum-prefix 10 warning-only`** — 纵深防御保护措施。即使入站前缀列表拒绝所有路由，当对端意外发送前缀时仍会生成警告。
-- **`redistribute kernel`** — 通过 route-map 将 `null0` 静态路由注入 BGP。另一种方法是使用显式的 `network` 语句（例如 `network xPROTECTED_PREFIX_V4x`），这种方式更精确，因为无论其他内核路由如何，都只通告确切的前缀。两种方法都可行；此处展示的是带有严格 route-map 的 `redistribute kernel`，以提供更大的灵活性。
+- **`timers 10 30`** — 每 10 秒发送一次 Keepalive，保持时间 30 秒。默认值（60/180）对于 DDoS 缓解故障切换而言响应过慢。请与 SOC 协调计时器值以确保两端一致。
+- **`ttl-security hops 1`** — 启用 GTSM（[RFC 5082](https://datatracker.ietf.org/doc/html/rfc5082)）。由于 BGP 会话通过 GRE 隧道进行单跳通信，此设置通过要求入站 BGP 数据包的 TTL 值为 255 来防止远程 BGP 欺骗。
+- **`maximum-prefix 10 warning-only`** — 纵深防御保障措施。尽管入站前缀列表已拒绝所有路由，但若对等方意外发送前缀，此设置将生成警告。
+- **`redistribute kernel`** — 通过路由映射将 `null0` 静态路由注入 BGP。另一种方法是使用显式 `network` 语句（例如 `network xPROTECTED_PREFIX_V4x`），该方式更为精确，因为无论其他内核路由如何，只有精确匹配的前缀才会被通告。两种方法均可使用；此处展示的是配合严格路由映射的 `redistribute kernel` 方式，以提供更大的灵活性。
 
 :::tip[BFD（双向转发检测）]
-如果您的 BIG-IP 版本支持通过 GRE 隧道的 BFD，请启用它以实现亚秒级故障检测：
+如果您的 BIG-IP 版本支持 GRE 隧道上的 BFD，请启用它以实现亚秒级故障检测：
 
 ```shell
 neighbor cloud fall-over bfd
 ```
 
-BFD 比单独使用 BGP keepalive 计时器提供更快的收敛速度。启用前请确认您的 BIG-IP 版本和 SOC 是否支持 BFD。
+BFD 可提供比单纯依赖 BGP Keepalive 计时器更快的收敛速度。启用前请与您的 BIG-IP 版本及 SOC 确认 BFD 支持情况。
 :::
 
-管理距离较高（201）的 `null0` 静态路由确保前缀存在于**内核路由表**中，以便通过 BGP 重分发到 Cloud，同时不会影响非攻击条件下的正常路由。如果受保护的前缀已经以较低的管理距离从其他来源存在于路由表中，则 `null0` 路由将不会生效，重分发可能会失败——请在配置后使用 `show ip route` 进行验证。
+管理距离较高（201）的 `null0` 静态路由确保前缀存在于**内核路由表**中，从而可通过 BGP 将其重新分发至云端，同时不影响非攻击状态下的正常路由。如果受保护前缀已通过其他来源以更低管理距离存在于路由表中，则 `null0` 路由将不会激活，重新分发可能失败——配置完成后请通过 `show ip route` 进行验证。

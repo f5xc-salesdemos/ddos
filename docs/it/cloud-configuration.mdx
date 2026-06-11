@@ -1,7 +1,7 @@
 ---
 title: Configurazione Cloud
 description: >-
-  Configurare tunnel, ASN e rotte nella Console Cloud per la mitigazione DDoS
+  Configura tunnel, ASN e route nella console Cloud per la mitigazione DDoS
   instradata.
 sidebar:
   order: 4
@@ -12,83 +12,83 @@ i18n:
 
 ## XC (UI)
 
-Utilizzare l'interfaccia web per configurare il lato **Cloud**, basandosi
-sulla guida [L3/L4 Routed DDoS Mitigation](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation).
+Utilizza l'interfaccia web per configurare il lato **Cloud**, seguendo la guida
+[L3/L4 Routed DDoS Mitigation](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation).
 
 ### Abilitare il workspace DDoS
 
 Prima di poter configurare tunnel e BGP:
 
-1. Contattare il team Cloud (tramite `sales@example.com`
-   o il proprio account team) per:
-    - Abilitare il workspace **Routed DDoS Mitigation** per il proprio tenant.
+1. Contatta il team Cloud (tramite `sales@example.com`
+   o il tuo account team) per:
+    - Abilitare il workspace **Routed DDoS Mitigation** per il tuo tenant.
     - Fornire:
-        - I propri **blocchi di IP pubblici** (/24 o più corti per IPv4, /48 o
-          più corti per IPv6) e la prova di titolarità (o LOA).
-        - Il proprio **ASN** (deve essere rilasciato da ARIN o registro equivalente).
+        - I tuoi **blocchi IP pubblici** (/24 o più corti per IPv4, /48 o
+          più corti per IPv6) e la prova di proprietà (o LOA).
+        - Il tuo **ASN** (deve essere rilasciato da ARIN o da un registro equivalente).
         - Registrazione **IRR** (RIPE, ARIN, APNIC, ecc.) e **ROA** nel
           repository RPKI.
-        - Il **metodo di ritorno del traffico pulito** desiderato (tunnel GRE, Layer 2,
+        - Il **metodo di restituzione del traffico pulito** desiderato (tunnel GRE, Layer 2,
           peering privato tramite Equinix, ecc.).
-        - Posizioni dei data center e router da proteggere.
-        - **AS-Path prepend** necessari per gli annunci delle rotte.
-        - Eventuali **community BGP**, preferenze di rotta o **AS-SET**
+        - Sedi dei data center e router da proteggere.
+        - **Prepend AS-Path** richiesti per gli annunci di route.
+        - Eventuali **community BGP**, preferenze di route o **AS-SET**
 
-1. Il SOC provvederà al provisioning di:
+1. Il SOC eseguirà il provisioning di:
     - Tunnel
     - ASN
     - Prefissi protetti
-    - Opzioni di annuncio delle rotte
+    - Opzioni di advertisement delle route
     - Fast ACL / policy firewall, se necessario
 
 ### Tunnel
 
-1. Accedere alla [Console Cloud](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation) e
-   selezionare **Routed DDoS** dal selettore dei servizi.
-1. Andare su **Manage > Tunnels > Add Tunnel** e configurare:
-    - **Location Name** e **Availability Zone** (Zone 1 di default).
+1. Accedi alla [Console Cloud](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation) e
+   seleziona **Routed DDoS** dal selettore di servizi.
+1. Vai a **Manage > Tunnels > Add Tunnel** e configura:
+    - **Location Name** e **Availability Zone** (Zona 1 per impostazione predefinita).
     - **Bandwidth Max in MB**.
     - **Tunnel Type**:
-        - **GRE Over IPv4** per tunnel esterno IPv4.
-        - **GRE Over IPv6** per tunnel esterno IPv6.
+        - **GRE Over IPv4** per tunnel outer IPv4.
+        - **GRE Over IPv6** per tunnel outer IPv6.
         - **IP Over IP** per incapsulamento IPv4-in-IPv4.
         - **IPv6 Over IPv6** per incapsulamento IPv6-in-IPv6.
-    - **Customer Endpoint IP**: indirizzo esterno del BIG-IP (self IP
-      esterno, deve essere instradabile pubblicamente quando i tunnel
-      attraversano la rete Internet pubblica).
-    - Opzionale: interconnessione IPv4/IPv6, frammentazione, keepalive (tutti
-      disabilitati di default).
-1. In **Tunnel BGP Information**:
-    - Selezionare un **oggetto ASN** (il proprio ASN).
-    - Impostare **Customer Peer Secret Override**: Use Default Secret
-      (predefinito), BGP Password Override (offuscato o testo in chiaro) o
+    - **Customer Endpoint IP**: indirizzo esterno del BIG-IP (self IP outer,
+      deve essere pubblicamente instradabile quando i tunnel attraversano
+      Internet pubblica).
+    - Opzionale: interconnect IPv4/IPv6, frammentazione, keepalive (tutti
+      disabilitati per impostazione predefinita).
+1. Nella sezione **Tunnel BGP Information**:
+    - Seleziona un **oggetto ASN** (il tuo ASN).
+    - Imposta **Customer Peer Secret Override**: Use Default Secret
+      (predefinito), BGP Password Override (blindfolded o testo in chiaro), oppure
       No Secret.
-    - Impostare il valore del **Holddown Timer** in secondi se diverso da
-      quello predefinito.
+    - Imposta il valore **Holddown Timer** in secondi se diverso dal
+      valore predefinito.
 
-Il SOC potrebbe pre-creare questi oggetti tunnel per voi; sarà sufficiente far corrispondere
-gli **endpoint IP** e le impostazioni BGP sul BIG-IP.
+Il SOC potrebbe pre-creare questi oggetti tunnel per te; sarà sufficiente
+abbinare gli **IP endpoint** e le impostazioni BGP sul BIG-IP.
 
-### ASN e Rotte
+### ASN e Route
 
 - **ASN**: -> **Manage > ASNs > Add ASN**.
-    - Inserire il proprio ASN e verificare che BGP sia abilitato.
+    - Inserisci il tuo ASN e assicurati che BGP sia abilitato.
 
 - **Prefissi**: -> **Manage > Prefixes > Add Prefix**.
-    - Inserire ciascun prefisso IP e associarlo al proprio ASN.
+    - Inserisci ogni prefisso IP e associalo al tuo ASN.
 
-- **Annunci delle Rotte** -> **Manage > Route Advertisement > Add Route Advertisement**.
-    - Inserire il prefisso, scegliere **Active** o **Not Advertised**, e
-      una scadenza opzionale.
+- **Route Advertisement** -> **Manage > Route Advertisement > Add Route Advertisement**.
+    - Inserisci il prefisso, scegli **Active** o **Not Advertised** e
+      imposta una scadenza opzionale.
 
 Questi oggetti controllano quali prefissi vengono annunciati tramite la rete
 globale quando il servizio è attivo.
 
-### Restrizioni di Rete
+### Restrizione di rete
 
-**Firewall Rules**, **Deny List Rules** e **Fast ACL for Internet
+**Firewall Rules**, **Deny List Rules** e **Fast ACLs for Internet
 VIPs** consentono di:
 
 - Bloccare o consentire traffico specifico.
-- Limitare la velocità delle sorgenti abusive.
+- Limitare la velocità di sorgenti abusive.
 - Applicare protezioni DDoS aggiuntive oltre al semplice scrubbing volumetrico.

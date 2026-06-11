@@ -1,6 +1,6 @@
 ---
-title: 検証
-description: BIG-IP上のGREトンネルおよびBGP設定を検証し、一般的な問題をトラブルシューティングします。
+title: 確認
+description: BIG-IP における GRE トンネルおよび BGP 設定の確認と、よくある問題のトラブルシューティング。
 sidebar:
   order: 6
 i18n:
@@ -8,13 +8,13 @@ i18n:
   translator: machine
 ---
 
-## 検証
+## 確認
 
 ### BIG-IP
 
 #### トンネル
 
-各ユニットで自身のトンネルに対して実行します：
+各ユニットで、それぞれのトンネルに対して実行します:
 
 ```shell title="tmsh"
 show net tunnels tunnel xc-ddos-c1t1-v4
@@ -28,15 +28,15 @@ show net tunnels tunnel xc-ddos-c2t2-v6
 list net tunnels tunnel xc-ddos-c1t1-v4 all-properties
 ```
 
-#### セルフIP
+#### セルフ IP
 
 ```shell title="tmsh"
 list net self xc-ddos-*
 ```
 
-#### パスチェック
+#### パス確認
 
-各ユニットから：
+各ユニットから実行します:
 
 ```shell title="tmsh"
 # BIG-IP-A トンネル
@@ -50,7 +50,7 @@ ping xXC_C2_T2_INNER_V4x source xBIGIP_C2_T2_INNER_V4x
 
 #### BGP
 
-各ユニットのimishで：
+各ユニットの imish で実行します:
 
 ```shell title="imish"
 show ip bgp summary
@@ -75,21 +75,23 @@ show ipv6 route
 ```
 
 :::caution[トラブルシューティングチェックリスト]
-BGPが確立されない場合：
+BGP が確立しない場合:
 
-1. GREトンネルがアップしていることを確認します：`show net tunnels tunnel` でステータスが `up` と表示される必要があります。
-1. 内部セルフIPの `allow-service` に `tcp:179` が含まれていることを確認します。
-1. トンネル経由でリモート内部IPにpingを実行します。
-1. BGPパスワードが両側で一致していることを確認します（`NOTIFICATION` エラーの一般的な原因です）。
-1. prefix-listおよびroute-mapが正しく適用されていることを確認します。
+1. GRE トンネルが起動していることを確認します: `show net tunnels tunnel` で
+   状態が `up` と表示される必要があります。
+1. インナーセルフ IP の `allow-service` に `tcp:179` が含まれていることを確認します。
+1. トンネルを通じてリモートのインナー IP に ping を実行します。
+1. BGP パスワードが両側で一致していることを確認します（`NOTIFICATION` エラーのよくある原因です）。
+1. プレフィックスリストとルートマップが正しく適用されていることを確認します。
 1. `show ip bgp neighbors <IP>` で最後のエラー/リセット理由を確認します。
-1. 各HAユニットで、そのユニット自身のトンネルがアップしており、自身のBGPネイバーが設定されていることを確認します（他のユニットのものではありません）。
+1. 各 HA ユニットで、そのユニット自身のトンネルが起動しており、
+   そのユニット自身の BGP ネイバーが設定されていることを確認します（他のユニットのものではなく）。
 :::
 
-### XCコンソール
+### F5 XC コンソール
 
 **DDoS and Transit Services >
-[DDoS Protection > Visibility](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)** に移動すると、以下を確認できます：
+[DDoS Protection > Visibility](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)** に移動すると、以下の情報を確認できます:
 
 - ネットワーク、ゾーン、アプリケーション別のトラフィック。
 - ブロックされたトラフィックと許可されたトラフィック。

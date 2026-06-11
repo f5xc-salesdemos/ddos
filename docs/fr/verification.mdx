@@ -1,8 +1,8 @@
 ---
 title: Vérification
 description: >-
-  Vérifiez la configuration des tunnels GRE et de BGP sur BIG-IP, et résolvez
-  les problèmes courants.
+  Vérifiez la configuration des tunnels GRE et BGP sur BIG-IP, et résolvez les
+  problèmes courants.
 sidebar:
   order: 6
 i18n:
@@ -16,7 +16,7 @@ i18n:
 
 #### Tunnels
 
-Exécutez sur chaque unité pour ses propres tunnels :
+Exécuter sur chaque unité pour ses propres tunnels :
 
 ```shell title="tmsh"
 show net tunnels tunnel xc-ddos-c1t1-v4
@@ -30,7 +30,7 @@ show net tunnels tunnel xc-ddos-c2t2-v6
 list net tunnels tunnel xc-ddos-c1t1-v4 all-properties
 ```
 
-#### Adresses IP propres (Self IPs)
+#### Self IPs
 
 ```shell title="tmsh"
 list net self xc-ddos-*
@@ -76,20 +76,19 @@ show ip route
 show ipv6 route
 ```
 
-:::caution[Liste de vérification pour le dépannage]
+:::caution[Liste de contrôle pour le dépannage]
 Si BGP ne s'établit pas :
 
-1. Vérifiez que le tunnel GRE est actif : `show net tunnels tunnel` devrait
+1. Vérifiez que le tunnel GRE est actif : `show net tunnels tunnel` doit
    afficher l'état `up`.
-1. Confirmez que `allow-service` inclut `tcp:179` sur l'adresse IP interne propre.
-1. Effectuez un ping vers l'adresse IP interne distante à travers le tunnel.
-1. Vérifiez que le mot de passe BGP correspond des deux côtés (cause fréquente
-   des erreurs `NOTIFICATION`).
-1. Vérifiez que les prefix-lists et les route-maps sont appliqués correctement.
-1. Consultez `show ip bgp neighbors <IP>` pour la dernière erreur ou raison
-   de réinitialisation.
-1. Sur chaque unité HA, vérifiez que les tunnels propres à l'unité sont actifs et que
-   ses propres voisins BGP sont configurés (pas ceux de l'autre unité).
+1. Confirmez que `allow-service` inclut `tcp:179` sur le self IP interne.
+1. Effectuez un ping vers l'IP interne distante via le tunnel.
+1. Vérifiez que le mot de passe BGP correspond des deux côtés (cause fréquente des
+   erreurs `NOTIFICATION`).
+1. Vérifiez que les listes de préfixes et les route-maps sont correctement appliquées.
+1. Consultez `show ip bgp neighbors <IP>` pour connaître la dernière erreur ou la raison de la réinitialisation.
+1. Sur chaque unité HA, vérifiez que les tunnels propres à l'unité sont actifs et que ses
+   propres voisins BGP sont configurés (et non ceux de l'autre unité).
 :::
 
 ### Console XC
@@ -98,5 +97,5 @@ Accédez à **DDoS and Transit Services >
 [DDoS Protection > Visibility](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)** pour consulter :
 
 - Le trafic par réseau, zone et application.
-- Le trafic bloqué vs. autorisé.
-- Les détails des attaques et les actions de nettoyage (scrubbing).
+- Le trafic bloqué par rapport au trafic autorisé.
+- Les détails des attaques et les actions de nettoyage.

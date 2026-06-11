@@ -1,6 +1,6 @@
 ---
 title: BIG-IP 設定
-description: BIG-IP HA ペアにおける GRE トンネル、Self IP、BGP を設定するための tmsh および imish コマンド。
+description: BIG-IP HA ペアにおける GRE トンネル、セルフ IP、および BGP を設定するための tmsh および imish コマンド。
 sidebar:
   order: 5
 i18n:
@@ -10,11 +10,12 @@ i18n:
 
 ## BIG-IP
 
-- （Route Domain 0 の例）
+- （ルートドメイン 0 の例）
 
-以下のすべてのコマンドは BIG-IP 上の **tmsh** で実行します。オブジェクト名と IP は必要に応じて調整してください。
+以下のすべてのコマンドは、BIG-IP 上の **tmsh** で実行します。オブジェクト名および IP アドレスは必要に応じて変更してください。
 
-BIG-IP での一般的な GRE トンネル設定については、[Configuring a GRE Tunnel Using BIG-IP](https://community.f5.com/kb/technicalarticles/configuring-a-generic-routing-encapsulation-gre-tunnel-using-big-ip/289030) を参照してください。Cloud との初期ルーテッド設定については、[K000147949](https://my.f5.com/manage/s/article/K000147949) を参照してください。
+BIG-IP での一般的な GRE トンネル設定については、
+[Configuring a GRE Tunnel Using BIG-IP](https://community.f5.com/kb/technicalarticles/configuring-a-generic-routing-encapsulation-gre-tunnel-using-big-ip/289030) を参照してください。クラウドとの初期ルーテッド設定については、[K000147949](https://my.f5.com/manage/s/article/K000147949) を参照してください。
 
 ### tmsh
 
@@ -23,11 +24,11 @@ BIG-IP での一般的な GRE トンネル設定については、[Configuring a
 root@(bigip)(cfg-sync Standalone)(Active)(/Common)(tmos)#
 ```
 
-### 外部 Self IP
+### アウターセルフ IP
 
 GRE エンドポイント
 
-これらは各 BIG-IP ユニットで **GRE トンネルエンドポイント** として使用される IP であり、通常は external VLAN 上にあります。各ユニットには固有の非フローティング外部 Self IP（`traffic-group-local-only`）があります：
+これらは各 BIG-IP ユニット上の IP アドレスで、**GRE トンネルエンドポイント**として使用されます。通常は外部 VLAN 上に設定します。各ユニットは独自の非フローティングアウターセルフ IP（`traffic-group-local-only`）を持ちます。
 
 **BIG-IP-A:**
 
@@ -63,9 +64,9 @@ create net self xc-ddos-v6-self-b \
 
 ### GRE トンネル
 
-各トンネルは BIG-IP ユニットから Cloud スクラビングセンターのエンドポイントを指します。各ユニットに **2 つのトンネル**（各地理的に分散されたスクラビングセンターに 1 つずつ）を作成し、HA ペア全体で合計 **4 つの論理トンネル** を構成します：
+各トンネルは、BIG-IP ユニットからクラウドのスクラビングセンターエンドポイントへと接続されます。HA ペア全体で合計 **4 つの論理トンネル**となるよう、**各ユニットに 2 つのトンネル**（地理的に分散した各スクラビングセンターへ 1 つずつ）を作成します。
 
-**トンネル C1-T1 — BIG-IP-A から xCENTER_1x:**
+**トンネル C1-T1 — BIG-IP-A から xCENTER_1x へ:**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c1t1-v4 \
@@ -79,7 +80,7 @@ create net tunnels tunnel xc-ddos-c1t1-v6 \
   remote-address xXC_C1_OUTER_V6x
 ```
 
-**トンネル C2-T1 — BIG-IP-A から xCENTER_2x:**
+**トンネル C2-T1 — BIG-IP-A から xCENTER_2x へ:**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c2t1-v4 \
@@ -93,7 +94,7 @@ create net tunnels tunnel xc-ddos-c2t1-v6 \
   remote-address xXC_C2_OUTER_V6x
 ```
 
-**トンネル C1-T2 — BIG-IP-B から xCENTER_1x:**
+**トンネル C1-T2 — BIG-IP-B から xCENTER_1x へ:**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c1t2-v4 \
@@ -107,7 +108,7 @@ create net tunnels tunnel xc-ddos-c1t2-v6 \
   remote-address xXC_C1_OUTER_V6x
 ```
 
-**トンネル C2-T2 — BIG-IP-B から xCENTER_2x:**
+**トンネル C2-T2 — BIG-IP-B から xCENTER_2x へ:**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c2t2-v4 \
@@ -125,7 +126,7 @@ create net tunnels tunnel xc-ddos-c2t2-v6 \
 
 ### トンネル MTU の設定
 
-GRE カプセル化にはオーバーヘッドが追加されます（IPv4 外部ヘッダーで 24 バイト、IPv6 外部ヘッダーで 44 バイト）。明示的な MTU を設定しない場合、1500 バイトに近いパケットはフラグメントまたはドロップされます。カプセル化のオーバーヘッドを考慮してトンネル MTU を設定してください：
+GRE カプセル化にはオーバーヘッドが発生します（IPv4 アウターで 24 バイト、IPv6 アウターで 44 バイト）。明示的な MTU を設定しない場合、1500 バイト付近のパケットは断片化またはドロップされます。カプセル化オーバーヘッドを考慮してトンネル MTU を設定してください。
 
 ```shell title="tmsh"
 modify net tunnels tunnel xc-ddos-c1t1-v4 mtu 1476
@@ -139,12 +140,13 @@ modify net tunnels tunnel xc-ddos-c2t2-v6 mtu 1456
 ```
 
 :::caution[パス MTU]
-上記の値は外部ネットワークのパス MTU が 1500 バイトであることを前提としています。上流のパス MTU がそれより小さい場合は調整してください。Path MTU Discovery（PMTUD）が正しく機能するように、中間デバイスで ICMP「destination unreachable / fragmentation needed」（タイプ 3、コード 4）がブロックされて**いない**ことを確認してください。
+上記の値は、アウターネットワークのパス MTU が 1500 バイトであることを前提としています。
+上流のパス MTU がより小さい場合は調整してください。Path MTU Discovery（PMTUD）が正常に機能するよう、中間デバイスで ICMP「宛先到達不能 / 断片化必要」（タイプ 3、コード 4）が**ブロックされていない**ことを確認してください。
 :::
 
 ### GRE アンチスプーフィング（上流 ACL）
 
-GRE（IP プロトコル 47）は認証を提供しません。外部 IP ペアを知っている者であれば誰でもトンネルにトラフィックを注入できます。上流のルーターまたはファイアウォールに ACL を適用して、インバウンド GRE を期待される Cloud スクラビングセンターのソース IP のみに制限してください：
+GRE（IP プロトコル 47）は認証を提供しません。アウター IP ペアを知っていれば、誰でもトンネルにトラフィックを注入できます。上流のルーターまたはファイアウォールに ACL を適用して、受信 GRE を期待されるクラウドスクラビングセンターのソース IP のみに制限してください。
 
 ```shell title="Cisco IOS"
 ! Example upstream router ACL (Cisco IOS style)
@@ -158,14 +160,14 @@ ip access-list extended ALLOW-XC-GRE
 ```
 
 :::note
-構文はお使いのルータープラットフォームに合わせて調整してください。同じ原則が IPv6 GRE トンネルの IPv6 ACL にも適用されます。BIG-IP-A（`xBIGIP_A_OUTER_V4x`）と BIG-IP-B（`xBIGIP_B_OUTER_V4x`）の両方の外部 IP を GRE の宛先として許可する必要があります。
+ご使用のルータープラットフォームに合わせてシンタックスを変更してください。IPv6 GRE トンネルの IPv6 ACL にも同じ原則が適用されます。GRE の宛先として、BIG-IP-A（`xBIGIP_A_OUTER_V4x`）および BIG-IP-B（`xBIGIP_B_OUTER_V4x`）両方のアウター IP を許可する必要があります。
 :::
 
-### 内部 Self IP（BGP ピアリング）
+### インナーセルフ IP（BGP ピアリング）
 
-Cloud との **BGP セッション** を形成する内部 IP アドレス（GRE トンネル内部）を割り当てます。ピアリングセッションが確立されるためには、`allow-service` に `tcp:179`（BGP）を含める必要があります。内部 Self IP に `icmp:any` を追加すると、トンネルを通じた PMTUD と到達性テストが有効になります：
+GRE トンネル内部にインナー IP アドレスを割り当て、クラウドとの **BGP セッション**を確立します。ピアリングセッションを確立するためには、`allow-service` に `tcp:179`（BGP）を含める必要があります。インナーセルフ IP に `icmp:any` を追加することで、トンネル経由の PMTUD および到達性テストが可能になります。
 
-**トンネル C1-T1 — BIG-IP-A から xCENTER_1x:**
+**トンネル C1-T1 — BIG-IP-A から xCENTER_1x へ:**
 
 ```shell title="tmsh"
 create net self xc-ddos-c1t1-inner-v4 \
@@ -181,7 +183,7 @@ create net self xc-ddos-c1t1-inner-v6 \
   address xBIGIP_C1_T1_INNER_V6x/64
 ```
 
-**トンネル C2-T1 — BIG-IP-A から xCENTER_2x:**
+**トンネル C2-T1 — BIG-IP-A から xCENTER_2x へ:**
 
 ```shell title="tmsh"
 create net self xc-ddos-c2t1-inner-v4 \
@@ -197,7 +199,7 @@ create net self xc-ddos-c2t1-inner-v6 \
   address xBIGIP_C2_T1_INNER_V6x/64
 ```
 
-**トンネル C1-T2 — BIG-IP-B から xCENTER_1x:**
+**トンネル C1-T2 — BIG-IP-B から xCENTER_1x へ:**
 
 ```shell title="tmsh"
 create net self xc-ddos-c1t2-inner-v4 \
@@ -213,7 +215,7 @@ create net self xc-ddos-c1t2-inner-v6 \
   address xBIGIP_C1_T2_INNER_V6x/64
 ```
 
-**トンネル C2-T2 — BIG-IP-B から xCENTER_2x:**
+**トンネル C2-T2 — BIG-IP-B から xCENTER_2x へ:**
 
 ```shell title="tmsh"
 create net self xc-ddos-c2t2-inner-v4 \
@@ -231,39 +233,40 @@ create net self xc-ddos-c2t2-inner-v6 \
 
 ### BGP
 
-Route Domain 0 の BGP を設定するには [imish](https://techdocs.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/big-ip-tmos-routing-administration-14-0-0/11.html) を使用します。
+ルートドメイン 0 の BGP を設定するには [imish](https://techdocs.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/big-ip-tmos-routing-administration-14-0-0/11.html) を使用します。
 
 :::note[ユニットごとの設定]
-`imish` の BGP 設定は各 BIG-IP ユニットにローカルです。各ユニットは自身のトンネルに対するネイバーのみを設定します：
+`imish` の BGP 設定は各 BIG-IP ユニットにローカルです。各ユニットは自身のトンネルに対応するネイバーのみを設定します。
 
-- **BIG-IP-A** は C1-T1 と C2-T1 のネイバーを設定します。
-- **BIG-IP-B** は C1-T2 と C2-T2 のネイバーを設定します。
+- **BIG-IP-A** は C1-T1 および C2-T1 のネイバーを設定します。
+- **BIG-IP-B** は C1-T2 および C2-T2 のネイバーを設定します。
 
-`router-id` はユニットごとに一意である必要があります（各ユニット固有の外部 Self IP を使用してください）。
+`router-id` はユニットごとに一意である必要があります（各ユニット自身のアウターセルフ IP を使用してください）。
 :::
 
-1. RD 0 の imish に入ります：
+1. RD 0 用の imish を起動します。
 
    ```bash title="bash"
    tmsh run /util imish -r 0
    ```
 
-1. 特権モードと設定モードに入ります：
+1. 特権モードおよびコンフィグモードに移行します。
 
    ```shell title="imish"
    localhost.localdomain[0]> enable
    localhost.localdomain[0]# configure terminal
    ```
 
-1. BGP 設定の例：
+1. BGP 設定の例:
 
-:::caution[プレースホルダー値の置き換え]
-- `xCUSTOMER_ASNx` — ARIN（または同等の RIR）に登録されたお客様のパブリック ASN。Cloud がお客様のプレフィックスをグローバルにアナウンスするため、ルーテッド DDoS には**パブリック ASN が必要**です。プライベート ASN（64512-65534 / 4200000000-4294967294）は、SOC がお客様のデプロイメントに対してプライベート ASN ピアリングを明示的にサポートしている場合にのみ使用可能です。
-- `xF5_XC_ASNx` — Cloud ASN（SOC より提供）。
-- `xBGP_PASSWORDx` — 合意済みの BGP MD5 パスワード（またはコンソールの「default secret」と一致させます）。このパスワードを他のサービスに再利用しないでください。
+:::caution[プレースホルダー値の置換]
+- `xCUSTOMER_ASNx` — ARIN（または同等の RIR）に登録されたパブリック ASN。クラウドがプレフィックスをグローバルにアナウンスするため、ルーテッド DDoS では**パブリック ASN が必須**です。
+  プライベート ASN（64512-65534 / 4200000000-4294967294）は、SOC がお客様のデプロイメントに対してプライベート ASN ピアリングを明示的にサポートしている場合にのみ使用できます。
+- `xF5_XC_ASNx` — クラウド ASN（SOC から提供されます）。
+- `xBGP_PASSWORDx` — 合意された BGP MD5 パスワード（またはコンソールの「デフォルトシークレット」と一致させてください）。このパスワードを他のサービスで再利用しないでください。
 :::
 
-**BIG-IP-A**（router-id `xBIGIP_A_OUTER_V4x`、ネイバー C1-T1 + C2-T1）：
+**BIG-IP-A**（router-id `xBIGIP_A_OUTER_V4x`、ネイバー C1-T1 + C2-T1）:
 
 ```shell title="imish"
 router bgp xCUSTOMER_ASNx
@@ -325,7 +328,7 @@ route-map route-to-cloud-ipv6 permit 10
   set origin igp
 ```
 
-**BIG-IP-B**（router-id `xBIGIP_B_OUTER_V4x`、ネイバー C1-T2 + C2-T2）：
+**BIG-IP-B**（router-id `xBIGIP_B_OUTER_V4x`、ネイバー C1-T2 + C2-T2）:
 
 ```shell title="imish"
 router bgp xCUSTOMER_ASNx
@@ -387,21 +390,21 @@ route-map route-to-cloud-ipv6 permit 10
   set origin igp
 ```
 
-**主要な BGP 設定の説明：**
+**主要な BGP 設定の説明:**
 
-- **`timers 10 30`** — Keepalive 10 秒ごと、ホールドタイム 30 秒。デフォルト（60 / 180）は DDoS 緩和のフェイルオーバーには遅すぎます。タイマー値は SOC と連携して両側で一致させてください。
-- **`ttl-security hops 1`** — GTSM（[RFC 5082](https://datatracker.ietf.org/doc/html/rfc5082)）を有効にします。BGP セッションは GRE トンネル上のシングルホップであるため、受信 BGP パケットに TTL = 255 を要求することでリモート BGP スプーフィングを防止します。
-- **`maximum-prefix 10 warning-only`** — 多層防御のセーフガード。インバウンドのプレフィックスリストがすべてのルートを拒否していても、ピアが予期せずプレフィックスを送信した場合に警告を生成します。
-- **`redistribute kernel`** — route-map を介して `null0` スタティックルートを BGP に注入します。代替手段として明示的な `network` ステートメント（例：`network xPROTECTED_PREFIX_V4x`）を使用することもでき、他のカーネルルートに関係なく正確なプレフィックスのみがアドバタイズされるため、より精密です。どちらのアプローチも機能しますが、ここでは柔軟性のために厳密な route-map を伴う `redistribute kernel` を示しています。
+- **`timers 10 30`** — キープアライブを 10 秒ごとに送信し、ホールドタイムを 30 秒に設定します。デフォルト（60 / 180）は DDoS 緩和フェイルオーバーには遅すぎます。両側で一致させるため、SOC とタイマー値を調整してください。
+- **`ttl-security hops 1`** — GTSM（[RFC 5082](https://datatracker.ietf.org/doc/html/rfc5082)）を有効にします。BGP セッションは GRE トンネル上のシングルホップであるため、受信 BGP パケットの TTL = 255 を要求することでリモート BGP スプーフィングを防止します。
+- **`maximum-prefix 10 warning-only`** — 多層防御のセーフガードです。インバウンドのプレフィックスリストがすべてのルートを拒否していますが、ピアが予期せずプレフィックスを送信した場合に警告を生成します。
+- **`redistribute kernel`** — `null0` スタティックルートをルートマップ経由で BGP に注入します。代替として明示的な `network` ステートメント（例: `network xPROTECTED_PREFIX_V4x`）を使用する方法もあります。この方法は他のカーネルルートに関係なく正確なプレフィックスのみがアドバタイズされるためより精確です。どちらの方法も機能しますが、柔軟性のために `redistribute kernel` と厳密なルートマップの組み合わせをここでは示しています。
 
 :::tip[BFD（双方向フォワーディング検出）]
-お使いの BIG-IP バージョンが GRE トンネル上の BFD をサポートしている場合、サブ秒のフェイルオーバー検出のために有効にしてください：
+ご使用の BIG-IP バージョンが GRE トンネル上の BFD をサポートしている場合は、サブセカンドの障害検出のために有効にしてください。
 
 ```shell
 neighbor cloud fall-over bfd
 ```
 
-BFD は BGP キープアライブタイマーのみよりも高速なコンバージェンスを提供します。有効にする前に、お使いの BIG-IP バージョンと SOC で BFD のサポートを確認してください。
+BFD は BGP キープアライブタイマーのみよりも高速なコンバージェンスを提供します。有効にする前に、BIG-IP バージョンおよび SOC と BFD サポートを確認してください。
 :::
 
-より高いアドミニストレーティブディスタンス（201）を持つ `null0` スタティックルートにより、プレフィックスが **カーネルルーティングテーブル** に存在することが保証され、通常のルーティングに影響を与えることなく BGP 経由で Cloud に再配布できます。保護対象のプレフィックスが、より低いアドミニストレーティブディスタンスを持つ別のソースからルーティングテーブルに既に存在する場合、`null0` ルートはアクティブにならず、再配布が失敗する可能性があります — 設定後に `show ip route` で確認してください。
+管理距離が高い（201）`null0` スタティックルートにより、プレフィックスが**カーネルルーティングテーブル**に存在することが保証され、非攻撃時の通常のルーティングに影響を与えることなく BGP 経由でクラウドに再配布できます。保護対象プレフィックスが既にルーティングテーブルに別のソースからより低い管理距離で存在する場合、`null0` ルートはアクティブにならず、再配布が失敗する可能性があります。設定後は `show ip route` で確認してください。

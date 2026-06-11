@@ -1,6 +1,6 @@
 ---
 title: การตรวจสอบ
-description: ตรวจสอบการกำหนดค่า GRE tunnel และ BGP บน BIG-IP รวมถึงการแก้ไขปัญหาทั่วไป
+description: ตรวจสอบการกำหนดค่า GRE tunnel และ BGP บน BIG-IP และแก้ไขปัญหาที่พบบ่อย
 sidebar:
   order: 6
 i18n:
@@ -14,7 +14,7 @@ i18n:
 
 #### Tunnels
 
-รันบนแต่ละยูนิตสำหรับ tunnels ของตัวเอง:
+รันบนแต่ละหน่วยสำหรับ tunnel ของตัวเอง:
 
 ```shell title="tmsh"
 show net tunnels tunnel xc-ddos-c1t1-v4
@@ -36,7 +36,7 @@ list net self xc-ddos-*
 
 #### การตรวจสอบเส้นทาง
 
-จากแต่ละยูนิต:
+จากแต่ละหน่วย:
 
 ```shell title="tmsh"
 # BIG-IP-A tunnels
@@ -50,7 +50,7 @@ ping xXC_C2_T2_INNER_V4x source xBIGIP_C2_T2_INNER_V4x
 
 #### BGP
 
-ใน imish บนแต่ละยูนิต:
+ใน imish บนแต่ละหน่วย:
 
 ```shell title="imish"
 show ip bgp summary
@@ -79,21 +79,21 @@ show ipv6 route
 
 1. ตรวจสอบว่า GRE tunnel ทำงานอยู่: `show net tunnels tunnel` ควร
    แสดงสถานะ `up`
-1. ยืนยันว่า `allow-service` รวม `tcp:179` ไว้ใน inner self IP
+1. ยืนยันว่า `allow-service` มี `tcp:179` รวมอยู่ใน inner self IP
 1. Ping ไปยัง remote inner IP ผ่าน tunnel
-1. ตรวจสอบว่ารหัสผ่าน BGP ตรงกันทั้งสองฝั่ง (สาเหตุที่พบบ่อยของ
+1. ตรวจสอบว่า BGP password ตรงกันทั้งสองฝั่ง (สาเหตุที่พบบ่อยของ
    ข้อผิดพลาด `NOTIFICATION`)
 1. ตรวจสอบว่า prefix-lists และ route-maps ถูกนำไปใช้อย่างถูกต้อง
-1. ตรวจสอบ `show ip bgp neighbors <IP>` สำหรับข้อผิดพลาด/สาเหตุการรีเซ็ตล่าสุด
-1. บนแต่ละยูนิต HA ให้ตรวจสอบว่า tunnels ของยูนิตนั้นทำงานอยู่และ
-   BGP neighbors ของตัวเองถูกกำหนดค่าไว้ (ไม่ใช่ของยูนิตอื่น)
+1. ตรวจสอบ `show ip bgp neighbors <IP>` เพื่อดูข้อผิดพลาด/สาเหตุการรีเซ็ตล่าสุด
+1. บนแต่ละหน่วย HA ให้ตรวจสอบว่า tunnel ของหน่วยนั้น ๆ ทำงานอยู่ และ
+   BGP neighbors ของหน่วยนั้น ๆ ได้รับการกำหนดค่าแล้ว (ไม่ใช่ของหน่วยอื่น)
 :::
 
-### คอนโซล XC
+### F5 XC คอนโซล
 
 ไปที่ **DDoS and Transit Services >
 [DDoS Protection > Visibility](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)** เพื่อดู:
 
-- ทราฟฟิกตามเครือข่าย โซน แอปพลิเคชัน
+- ทราฟฟิกตามเครือข่าย โซน และแอปพลิเคชัน
 - ทราฟฟิกที่ถูกบล็อกเทียบกับที่อนุญาต
 - รายละเอียดการโจมตีและการดำเนินการ scrubbing

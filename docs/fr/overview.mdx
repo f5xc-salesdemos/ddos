@@ -2,7 +2,7 @@
 title: Vue d'ensemble
 description: >-
   Introduction à la configuration des tunnels GRE et du peering BGP depuis une
-  paire HA BIG-IP vers les centres de nettoyage Cloud DDoS.
+  paire HA BIG-IP vers des centres de nettoyage DDoS Cloud.
 sidebar:
   order: 1
 i18n:
@@ -12,76 +12,76 @@ i18n:
 
 ## Cloud GRE/BGP BIG-IP
 
-- Configurez les **tunnels GRE** et le **peering BGP** depuis une paire HA BIG-IP
-  (agissant en tant qu'équipement sur site client, CPE), avec des
-  tunnels indépendants par unité.
-- Connectez-vous à l'**atténuation DDoS Cloud** via les centres de
-  nettoyage en **mode routé** (L3/L4).
+- Configurer des **tunnels GRE** et un **peering BGP** depuis une paire HA BIG-IP
+  (agissant comme équipement de locaux client, CPE), avec des tunnels
+  indépendants par unité.
+- Se connecter aux centres de nettoyage **Cloud DDoS Mitigation** en
+  **mode routé** (L3/L4).
 
 ```mermaid
 flowchart LR
-    INET["Internet<br/>Trafic entrant"]
+    INET["Internet<br/>Inbound Traffic"]
 
-    subgraph XC["F5 Distributed Cloud<br/>Anycast global"]
-        SCRUB["Nettoyage DDoS<br/>Atténuation L3/L4"]
-        DROP["Trafic d'attaque<br/>Supprimé"]
+    subgraph XC["F5 Distributed Cloud<br/>Global Anycast"]
+        SCRUB["DDoS Scrubbing<br/>L3/L4 Mitigation"]
+        DROP["Attack Traffic<br/>Dropped"]
     end
 
-    subgraph DC["Centre de données xDC_NAMEx"]
-        BIGIP["BIG-IP CPE<br/>(point de terminaison GRE)"]
-        SERVERS["Serveurs protégés contre les DDoS<br/><i>Votre bloc d'IP publiques</i>"]
+    subgraph DC["xDC_NAMEx Data Center"]
+        BIGIP["BIG-IP CPE<br/>(GRE endpoint)"]
+        SERVERS["DDoS-Protected Servers<br/><i>Your public IP block</i>"]
     end
 
-    INET -->|"tout le trafic vers vos<br/>IP publiques"| SCRUB
-    SCRUB -->|"trafic propre"| BIGIP
-    SCRUB -.->|"trafic malveillant"| DROP
+    INET -->|"all traffic to your<br/>public IPs"| SCRUB
+    SCRUB -->|"clean traffic"| BIGIP
+    SCRUB -.->|"malicious traffic"| DROP
     BIGIP --> SERVERS
     SERVERS --> BIGIP
-    BIGIP -.->|"trafic retour<br/>via liaison montante FAI<br/>(chemin asymétrique)"| INET
+    BIGIP -.->|"return traffic<br/>via ISP uplink<br/>(asymmetric path)"| INET
 
     style SERVERS fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```
 
 ## Prérequis
 
-- Service Cloud d'**atténuation DDoS routée L3/L4**
+- Service **L3/L4 Routed DDoS Mitigation** Cloud
   (Always On ou Always Available) activé pour votre tenant.
 - BIG-IP avec :
     - LTM (ou modules réseau équivalents).
     - **Routage dynamique (BGP)** licencié et activé.
-- Mode routé : au moins un préfixe **publiquement annoncé /24 (ou plus court)**
+- Mode routé : au moins un préfixe **/24 (ou plus court) annoncé publiquement**
   pour la protection (le minimum IPv6 est **/48**).
-    - Les préfixes protégés **doivent être publiquement routables** (non-RFC 1918).
-     Les points de terminaison extérieurs GRE doivent également être publiquement routables lorsque les tunnels
-     traversent l'Internet public ; les déploiements utilisant une connectivité
-     privée (L2, peering privé) peuvent utiliser des adresses de points de terminaison RFC 1918.
+    - Les préfixes protégés **doivent être routablement publics** (non-RFC 1918).
+     Les points de terminaison externes GRE doivent également être routablement publics lorsque les tunnels
+     traversent l'Internet public ; les déploiements utilisant une connectivité privée
+     (L2, peering privé) peuvent utiliser des adresses de points de terminaison RFC 1918.
 - Connectivité entre votre centre de données/routeur et le(s)
   centre(s) de nettoyage Cloud.
 
 ## Architecture HA
 
-Le BIG-IP est déployé en tant que **paire HA actif/passif**, chaque unité
+Le BIG-IP est déployé en tant que **paire HA actif/veille**, chaque unité
 dispose de ses propres tunnels GRE indépendants et sessions BGP vers chaque
 centre de nettoyage :
 
 ```mermaid
 flowchart LR
     subgraph F5XC["F5 Distributed Cloud"]
-        C1["Centre de nettoyage xCENTER_1x"]
-        C2["Centre de nettoyage xCENTER_2x"]
+        C1["xCENTER_1x scrubbing center"]
+        C2["xCENTER_2x scrubbing center"]
     end
 
-    subgraph DC["Centre de données xDC_NAMEx"]
+    subgraph DC["xDC_NAMEx Data Center"]
         direction TB
-        subgraph UNITA["BIG-IP-A (Actif)"]
-            A_C1["Tunnel C1-T1<br/>BGP établi"]
-            A_C2["Tunnel C2-T1<br/>BGP établi"]
+        subgraph UNITA["BIG-IP-A (Active)"]
+            A_C1["C1-T1 tunnel<br/>BGP Established"]
+            A_C2["C2-T1 tunnel<br/>BGP Established"]
         end
-        subgraph UNITB["BIG-IP-B (Passif)"]
-            B_C1["Tunnel C1-T2<br/>Graceful-Restart prêt"]
-            B_C2["Tunnel C2-T2<br/>Graceful-Restart prêt"]
+        subgraph UNITB["BIG-IP-B (Standby)"]
+            B_C1["C1-T2 tunnel<br/>Graceful-Restart Ready"]
+            B_C2["C2-T2 tunnel<br/>Graceful-Restart Ready"]
         end
-        SERVERS["Serveurs protégés contre les DDoS"]
+        SERVERS["DDoS-Protected Servers"]
     end
 
     C1 -- "GRE C1-T1" --> A_C1
@@ -95,34 +95,33 @@ flowchart LR
 ```
 
 - **Points de terminaison de tunnel indépendants** : Chaque unité BIG-IP possède sa propre
-  IP self extérieure non flottante (`traffic-group-local-only`) et son
+  IP externe non flottante (`traffic-group-local-only`) et son
   propre ensemble de tunnels GRE. BIG-IP-A utilise `xBIGIP_A_OUTER_V4x` et
   BIG-IP-B utilise `xBIGIP_B_OUTER_V4x` comme points de terminaison de tunnel. Cela évite
-  la dépendance à une IP flottante pour le sourçage des tunnels.
+  toute dépendance vis-à-vis d'une IP flottante pour la source du tunnel.
 - **Sessions BGP indépendantes** : Chaque unité exécute ses propres sessions BGP
-  via ses propres tunnels. BIG-IP-A s'appaire avec C1-T1 et C2-T1 ;
-  BIG-IP-B s'appaire avec C1-T2 et C2-T2. Lors d'un basculement, les
-  sessions BGP de l'unité passive sont déjà établies, de sorte que le
+  sur ses propres tunnels. BIG-IP-A établit un peering avec C1-T1 et C2-T1 ;
+  BIG-IP-B établit un peering avec C1-T2 et C2-T2. En cas de basculement, les
+  sessions BGP de l'unité en veille sont déjà établies, de sorte que le
   Cloud peut rediriger le trafic immédiatement.
-- **Synchronisation de configuration** : Les configurations de tunnels, d'IP self et de routage sont
-  synchronisées entre les unités via **config-sync**. Étant donné que la
-  configuration BGP `imish` est propre à chaque unité, chaque unité maintient ses propres
-  déclarations de voisins. Vérifiez que la synchronisation inclut tous les objets tmsh.
-- **Comportement BGP actif/passif** : L'unité active annonce les
-  préfixes protégés avec des attributs BGP normaux. L'unité passive
-  peut soit annoncer les mêmes préfixes avec un AS-path prepend plus long
-  (la rendant moins préférée), soit supprimer les annonces
+- **Synchronisation de configuration** : Les configurations de tunnels, d'IP externes et de routage sont
+  synchronisées entre les unités via **config-sync**. Étant donné que la configuration BGP `imish`
+  est par unité, chaque unité maintient ses propres instructions de voisin. Vérifiez que la synchronisation inclut tous les objets tmsh.
+- **Comportement BGP actif/veille** : L'unité active annonce les
+  préfixes protégés avec des attributs BGP normaux. L'unité en veille peut
+  soit annoncer les mêmes préfixes avec un prepend de chemin AS plus long
+  (le rendant moins préféré), soit supprimer les annonces
   jusqu'au basculement. Coordonnez l'approche avec le SOC.
-- **Convergence lors du basculement** : Avec `graceful-restart` activé et
-  des tunnels indépendants, la nouvelle unité active dispose déjà de sessions
-  BGP établies. La convergence dépend du déplacement de la sélection du meilleur chemin BGP
-  vers les annonces de l'unité nouvellement active. Testez avec
+- **Convergence lors du basculement** : Avec `graceful-restart` activé et des
+  tunnels indépendants, la nouvelle unité active dispose déjà de sessions BGP
+  établies. La convergence dépend de la sélection du meilleur chemin BGP
+  se déplaçant vers les annonces de la nouvelle unité active. Testez avec
   `run sys failover standby`.
 
 :::note
-Le modèle HA à tunnels indépendants ci-dessus est l'approche recommandée
-pour la redondance des équipements côté client. Validez votre conception
-de basculement spécifique avec votre équipe de compte avant de passer en
-production, en particulier concernant la stratégie d'AS-path prepend et
-le timing de reconvergence BGP.
+Le modèle HA à tunnels indépendants décrit ci-dessus est l'approche recommandée
+pour la redondance des équipements côté client. Validez votre conception de basculement spécifique
+avec votre équipe de compte avant la mise en production,
+notamment en ce qui concerne la stratégie de prepend de chemin AS et le délai de
+reconvergence BGP.
 :::

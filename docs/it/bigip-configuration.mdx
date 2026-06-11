@@ -12,14 +12,14 @@ i18n:
 
 ## BIG-IP
 
-- (Esempio con Route Domain 0)
+- (Esempio di Route Domain 0)
 
-Tutti i comandi seguenti vengono eseguiti in **tmsh** su BIG-IP. Adattare i nomi degli oggetti
-e gli IP secondo necessità.
+Tutti i comandi seguenti vengono eseguiti in **tmsh** su BIG-IP. Adattare i nomi
+degli oggetti e gli indirizzi IP secondo le proprie esigenze.
 
 Per la configurazione generale dei tunnel GRE su BIG-IP, consultare
-[Configuring a GRE Tunnel Using BIG-IP](https://community.f5.com/kb/technicalarticles/configuring-a-generic-routing-encapsulation-gre-tunnel-using-big-ip/289030). Per la configurazione iniziale
-del routing con il Cloud, consultare [K000147949](https://my.f5.com/manage/s/article/K000147949).
+[Configuring a GRE Tunnel Using BIG-IP](https://community.f5.com/kb/technicalarticles/configuring-a-generic-routing-encapsulation-gre-tunnel-using-big-ip/289030). Per la
+configurazione iniziale del routing con il Cloud, consultare [K000147949](https://my.f5.com/manage/s/article/K000147949).
 
 ### tmsh
 
@@ -33,8 +33,8 @@ root@(bigip)(cfg-sync Standalone)(Active)(/Common)(tmos)#
 Endpoint GRE
 
 Questi sono gli IP su ciascuna unità BIG-IP utilizzati come **endpoint
-dei tunnel GRE**, tipicamente sulla VLAN esterna. Ogni unità ha il proprio
-self IP esterno non floating (`traffic-group-local-only`):
+del tunnel GRE**, tipicamente sulla VLAN esterna. Ogni unità dispone del proprio
+self IP esterno non-floating (`traffic-group-local-only`):
 
 **BIG-IP-A:**
 
@@ -70,10 +70,10 @@ create net self xc-ddos-v6-self-b \
 
 ### Tunnel GRE
 
-Ogni tunnel collega un'unità BIG-IP a un endpoint del centro di scrubbing
-Cloud. Creare **due tunnel per unità** (uno verso
-ciascun centro di scrubbing geo-localizzato) per un totale di **quattro tunnel
-logici** nell'intera coppia HA:
+Ogni tunnel collega un'unità BIG-IP a un endpoint del centro di
+scrubbing Cloud. Creare **due tunnel per unità** (uno verso
+ciascun centro di scrubbing geograficamente distribuito) per un totale di **quattro tunnel logici**
+sull'intera coppia HA:
 
 **Tunnel C1-T1 — BIG-IP-A verso xCENTER_1x:**
 
@@ -131,13 +131,13 @@ create net tunnels tunnel xc-ddos-c2t2-v6 \
   remote-address xXC_C2_OUTER_V6x
 ```
 
-I nomi dei tunnel (`xc-ddos-c1t1-v4`, ecc.) sono arbitrari; utilizzare la propria
+I nomi dei tunnel (`xc-ddos-c1t1-v4`, ecc.) sono arbitrari; è possibile utilizzare la propria
 convenzione di denominazione.
 
-### Impostazione MTU del tunnel
+### Impostare l'MTU del tunnel
 
-L'incapsulamento GRE aggiunge overhead (24 byte per l'header esterno IPv4, 44 byte
-per l'header esterno IPv6). Senza un MTU esplicito, i pacchetti vicini a 1500 byte
+L'incapsulamento GRE aggiunge overhead (24 byte per l'intestazione esterna IPv4, 44 byte
+per l'intestazione esterna IPv6). Senza un MTU esplicito, i pacchetti vicini a 1500 byte
 verranno frammentati o scartati. Impostare l'MTU del tunnel per tenere conto
 dell'overhead di incapsulamento:
 
@@ -152,20 +152,20 @@ modify net tunnels tunnel xc-ddos-c2t2-v4 mtu 1476
 modify net tunnels tunnel xc-ddos-c2t2-v6 mtu 1456
 ```
 
-:::caution[Path MTU]
-I valori sopra indicati presuppongono un Path MTU di 1500 byte sulla rete esterna.
-Adattare se il Path MTU upstream è inferiore. Assicurarsi che i messaggi ICMP
+:::caution[MTU del percorso]
+I valori sopra indicati presuppongono un MTU del percorso esterno di 1500 byte.
+Adattare il valore se l'MTU del percorso upstream è inferiore. Assicurarsi che i messaggi ICMP
 "destination unreachable / fragmentation needed" (tipo 3, codice 4)
-**non** siano bloccati su alcun dispositivo intermedio, affinché il Path MTU
-Discovery (PMTUD) funzioni correttamente.
+**non** siano bloccati su nessun dispositivo intermedio, affinché il
+Path MTU Discovery (PMTUD) funzioni correttamente.
 :::
 
 ### Anti-spoofing GRE (ACL upstream)
 
-GRE (protocollo IP 47) non fornisce autenticazione. Chiunque conosca
+Il protocollo GRE (IP protocol 47) non fornisce autenticazione. Chiunque conosca
 la coppia di IP esterni può iniettare traffico nel tunnel. Applicare
-ACL sul router o firewall upstream per limitare il GRE in ingresso
-ai soli IP sorgente attesi dei centri di scrubbing Cloud:
+ACL sul router o sul firewall upstream per limitare il traffico GRE in ingresso
+esclusivamente agli IP sorgente previsti dei centri di scrubbing Cloud:
 
 ```shell title="Cisco IOS"
 ! Example upstream router ACL (Cisco IOS style)
@@ -180,17 +180,17 @@ ip access-list extended ALLOW-XC-GRE
 
 :::note
 Adattare la sintassi alla propria piattaforma router. Lo stesso principio
-si applica alle ACL IPv6 per i tunnel GRE IPv6. Sia gli IP esterni di BIG-IP-A
+si applica alle ACL IPv6 per i tunnel GRE IPv6. Gli IP esterni sia di BIG-IP-A
 (`xBIGIP_A_OUTER_V4x`) che di BIG-IP-B (`xBIGIP_B_OUTER_V4x`)
-devono essere consentiti come destinazioni GRE.
+devono essere autorizzati come destinazioni GRE.
 :::
 
 ### Self IP interni (peering BGP)
 
-Assegnare indirizzi IP interni (all'interno del tunnel GRE) che formeranno la
-**sessione BGP** con il Cloud. L'`allow-service` deve
-includere `tcp:179` (BGP) affinché la sessione di peering si stabilisca. L'aggiunta di
-`icmp:any` sui self IP interni abilita il PMTUD e il test di raggiungibilità
+Assegnare indirizzi IP interni (all'interno del tunnel GRE) che stabiliranno la
+**sessione BGP** con il Cloud. Il parametro `allow-service` deve
+includere `tcp:179` (BGP) affinché la sessione di peering possa essere stabilita. L'aggiunta di
+`icmp:any` sui self IP interni abilita PMTUD e il test di raggiungibilità
 attraverso il tunnel:
 
 **Tunnel C1-T1 — BIG-IP-A verso xCENTER_1x:**
@@ -262,14 +262,13 @@ create net self xc-ddos-c2t2-inner-v6 \
 Utilizzare [imish](https://techdocs.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/big-ip-tmos-routing-administration-14-0-0/11.html) per configurare BGP per il Route Domain 0.
 
 :::note[Configurazione per unità]
-La configurazione BGP tramite `imish` è locale a ciascuna unità BIG-IP. Ogni
-unità configura solo i neighbor relativi ai propri tunnel:
+La configurazione BGP `imish` è locale a ciascuna unità BIG-IP. Ogni
+unità configura solo i neighbor per i propri tunnel:
 
 - **BIG-IP-A** configura i neighbor C1-T1 e C2-T1.
 - **BIG-IP-B** configura i neighbor C1-T2 e C2-T2.
 
-Il `router-id` deve essere univoco per ciascuna unità (utilizzare il self IP
-esterno di ciascuna unità).
+Il `router-id` deve essere univoco per ogni unità (utilizzare il self IP esterno della propria unità).
 :::
 
 1. Accedere a imish per RD 0:
@@ -278,7 +277,7 @@ esterno di ciascuna unità).
    tmsh run /util imish -r 0
    ```
 
-1. Entrare in modalità privilegiata e di configurazione:
+1. Accedere alla modalità privilegiata e di configurazione:
 
    ```shell title="imish"
    localhost.localdomain[0]> enable
@@ -289,13 +288,13 @@ esterno di ciascuna unità).
 
 :::caution[Sostituire i valori segnaposto]
 - `xCUSTOMER_ASNx` — il proprio ASN pubblico registrato presso ARIN (o
-  il RIR equivalente). Un **ASN pubblico è richiesto** per il DDoS con routing
-  perché il Cloud annuncerà i vostri prefissi a livello globale.
+  RIR equivalente). È **richiesto un ASN pubblico** per il DDoS con routing
+  perché il Cloud annuncerà i propri prefissi a livello globale.
   Un ASN privato (64512-65534 / 4200000000-4294967294) è accettabile solo
-  se il SOC supporta esplicitamente il peering con ASN privati per
-  il vostro deployment.
+  se il SOC supporta esplicitamente il peering con ASN privato per
+  il proprio deployment.
 - `xF5_XC_ASNx` — ASN del Cloud (fornito dal SOC).
-- `xBGP_PASSWORDx` — la password BGP MD5 concordata (o corrispondente al
+- `xBGP_PASSWORDx` — la password BGP MD5 concordata (o la corrispondente
   "default secret" della Console). Non riutilizzare mai questa password per altri servizi.
 :::
 
@@ -423,43 +422,43 @@ route-map route-to-cloud-ipv6 permit 10
   set origin igp
 ```
 
-**Spiegazione delle impostazioni BGP principali:**
+**Spiegazione delle principali impostazioni BGP:**
 
-- **`timers 10 30`** — Keepalive ogni 10 s, hold time 30 s. Il valore
-  predefinito (60 / 180) è troppo lento per il failover nella mitigazione DDoS.
-  Coordinare i valori dei timer con il SOC per garantire la corrispondenza su entrambi i lati.
+- **`timers 10 30`** — Keepalive ogni 10 s, hold time 30 s. Il
+  valore predefinito (60 / 180) è troppo lento per il failover della mitigazione DDoS.
+  Coordinare i valori dei timer con il SOC affinché corrispondano su entrambi i lati.
 - **`ttl-security hops 1`** — Abilita GTSM
   ([RFC 5082](https://datatracker.ietf.org/doc/html/rfc5082)). Poiché le sessioni BGP sono single-hop
-  attraverso il tunnel GRE, questo previene lo spoofing BGP remoto
+  sul tunnel GRE, questo impedisce lo spoofing BGP remoto
   richiedendo TTL = 255 sui pacchetti BGP in ingresso.
-- **`maximum-prefix 10 warning-only`** — Misura di protezione defence-in-depth.
-  Anche se la prefix-list in ingresso nega tutte le rotte, questo
+- **`maximum-prefix 10 warning-only`** — Salvaguardia di difesa in profondità.
+  Anche se la prefix-list in ingresso nega tutte le route, questa opzione
   genera un avviso se il peer invia inaspettatamente dei prefissi.
-- **`redistribute kernel`** — Inietta le rotte statiche `null0` in
-  BGP tramite la route-map. Un'alternativa è utilizzare istruzioni `network`
-  esplicite (es. `network xPROTECTED_PREFIX_V4x`), che sono più precise
-  perché solo il prefisso esatto viene annunciato indipendentemente dalle altre
-  rotte kernel. Entrambi gli approcci funzionano; qui viene mostrato `redistribute kernel` con una
-  route-map restrittiva per maggiore flessibilità.
+- **`redistribute kernel`** — Inietta le route statiche `null0` in
+  BGP tramite la route-map. Un'alternativa è utilizzare istruzioni `network` esplicite
+  (ad es. `network xPROTECTED_PREFIX_V4x`), che sono più precise
+  poiché viene annunciato solo il prefisso esatto indipendentemente da altre
+  route del kernel. Entrambi gli approcci funzionano; `redistribute kernel` con una
+  route-map rigorosa è mostrato qui per maggiore flessibilità.
 
 :::tip[BFD (Bidirectional Forwarding Detection)]
-Se la versione del BIG-IP in uso supporta BFD sui tunnel GRE, abilitarlo
-per il rilevamento dei guasti in tempi inferiori al secondo:
+Se la versione di BIG-IP in uso supporta BFD sui tunnel GRE, abilitarlo
+per un rilevamento dei guasti sub-secondo:
 
 ```shell
 neighbor cloud fall-over bfd
 ```
 
-BFD offre una convergenza più rapida rispetto ai soli timer keepalive BGP.
-Verificare il supporto BFD con la propria versione di BIG-IP e con il SOC prima
-dell'abilitazione.
+BFD garantisce una convergenza più rapida rispetto ai soli timer keepalive BGP.
+Verificare il supporto BFD con la propria versione di BIG-IP e con il SOC prima di
+abilitarlo.
 :::
 
-Le rotte statiche `null0` con distanza amministrativa più alta (201)
-assicurano che i prefissi esistano nella **tabella di routing del kernel**, in modo da poter
-essere ridistribuiti verso il Cloud tramite BGP senza influire
-sul routing normale in condizioni di non-attacco. Se il prefisso protetto
+Le route statiche `null0` con distanza amministrativa più elevata (201)
+garantiscono che i prefissi esistano nella **tabella di routing del kernel**, in modo che possano
+essere ridistribuiti verso il Cloud tramite BGP senza influenzare il
+normale routing in condizioni di non-attacco. Se il prefisso protetto
 esiste già nella tabella di routing da un'altra sorgente con una distanza
-amministrativa inferiore, la rotta `null0` non sarà attiva e la
-ridistribuzione potrebbe fallire — verificare con `show ip route` dopo
-la configurazione.
+amministrativa inferiore, la route `null0` non sarà attiva e
+la ridistribuzione potrebbe non riuscire — verificare con `show ip route` dopo la
+configurazione.

@@ -1,8 +1,8 @@
 ---
 title: Préfixe protégé
 description: >-
-  Exigences pour le bloc d'adresses IP publiques que Cloud défend contre les
-  attaques DDoS.
+  Exigences relatives au bloc d'adresses IP publiques que Cloud défend contre
+  les attaques DDoS.
 sidebar:
   order: 2
 i18n:
@@ -18,12 +18,12 @@ Cloud défend contre les attaques DDoS.
 | Exigence | IPv4 | IPv6 |
 |-------------|------|------|
 | **Taille minimale** | /24 (256 IPs) | /48 |
-| **Routabilité** | Routable publiquement (non-RFC 1918) | Unicast global (non-ULA) |
+| **Routabilité** | Routable publiquement (non RFC 1918) | Unicast global (non ULA) |
 | **Enregistrement** | Attribué par un RIR (ARIN, RIPE, APNIC) | Attribué par un RIR |
 | **Preuve** | LOA ou enregistrement IRR/ROA | LOA ou enregistrement IRR/ROA |
 
 **Flux de trafic :**
 
-1. Cloud annonce votre préfixe globalement via BGP anycast
-1. Tout le trafic Internet destiné à vos IPs transite par les centres de filtrage
-1. Le trafic d'attaque est rejeté ; le trafic légitime est livré via des tunnels GRE
+1. Cloud annonce votre préfixe à l'échelle mondiale via BGP anycast
+1. Tout le trafic Internet à destination de vos IP est acheminé à travers les centres de nettoyage
+1. Le trafic d'attaque est bloqué ; le trafic légitime est acheminé via des tunnels GRE

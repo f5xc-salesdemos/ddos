@@ -1,8 +1,8 @@
 ---
 title: Verifica
 description: >-
-  Verificare la configurazione del tunnel GRE e del BGP su BIG-IP e risolvere i
-  problemi comuni.
+  Verifica la configurazione del tunnel GRE e BGP su BIG-IP e risolvi i problemi
+  più comuni.
 sidebar:
   order: 6
 i18n:
@@ -30,7 +30,7 @@ show net tunnels tunnel xc-ddos-c2t2-v6
 list net tunnels tunnel xc-ddos-c1t1-v4 all-properties
 ```
 
-#### Self IP
+#### IP autonomi
 
 ```shell title="tmsh"
 list net self xc-ddos-*
@@ -76,27 +76,26 @@ show ip route
 show ipv6 route
 ```
 
-:::caution[Checklist per la risoluzione dei problemi]
-Se il BGP non si stabilisce:
+:::caution[Lista di controllo per la risoluzione dei problemi]
+Se BGP non si stabilisce:
 
 1. Verificare che il tunnel GRE sia attivo: `show net tunnels tunnel` dovrebbe
    mostrare lo stato `up`.
-1. Confermare che `allow-service` includa `tcp:179` sul self IP interno.
+1. Confermare che `allow-service` includa `tcp:179` sull'IP autonomo interno.
 1. Eseguire il ping dell'IP interno remoto attraverso il tunnel.
-1. Verificare che la password BGP corrisponda su entrambi i lati (causa comune
-   degli errori `NOTIFICATION`).
+1. Verificare che la password BGP corrisponda su entrambi i lati (causa comune di
+   errori `NOTIFICATION`).
 1. Verificare che le prefix-list e le route-map siano applicate correttamente.
-1. Controllare `show ip bgp neighbors <IP>` per l'ultimo errore/motivo
-   di reset.
+1. Controllare `show ip bgp neighbors <IP>` per l'ultimo errore/motivo di reset.
 1. Su ciascuna unità HA, verificare che i tunnel dell'unità stessa siano attivi e che
-   i suoi neighbor BGP siano configurati (non quelli dell'altra unità).
+   i propri vicini BGP siano configurati (non quelli dell'altra unità).
 :::
 
 ### Console XC
 
-Navigare su **DDoS and Transit Services >
+Accedere a **DDoS and Transit Services >
 [DDoS Protection > Visibility](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)** per visualizzare:
 
 - Traffico per rete, zona, applicazione.
-- Traffico bloccato vs. consentito.
+- Traffico bloccato rispetto a quello consentito.
 - Dettagli degli attacchi e azioni di scrubbing.

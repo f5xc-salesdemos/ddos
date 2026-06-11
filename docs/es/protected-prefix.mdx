@@ -1,5 +1,5 @@
 ---
-title: Prefijo protegido
+title: Prefijo Protegido
 description: >-
   Requisitos para el bloque de direcciones IP públicas que Cloud defiende contra
   ataques DDoS.
@@ -20,10 +20,10 @@ Cloud defiende contra ataques DDoS.
 | **Tamaño mínimo** | /24 (256 IPs) | /48 |
 | **Enrutabilidad** | Enrutable públicamente (no RFC 1918) | Unicast global (no ULA) |
 | **Registro** | Asignado por RIR (ARIN, RIPE, APNIC) | Asignado por RIR |
-| **Comprobación** | LOA o registro IRR/ROA | LOA o registro IRR/ROA |
+| **Prueba** | LOA o registro IRR/ROA | LOA o registro IRR/ROA |
 
 **Flujo de tráfico:**
 
 1. Cloud anuncia su prefijo globalmente mediante BGP anycast
-1. Todo el tráfico de Internet destinado a sus IPs se enruta a través de centros de depuración
+1. Todo el tráfico de Internet destinado a sus IPs se enruta a través de centros de limpieza
 1. El tráfico de ataque se descarta; el tráfico limpio se entrega mediante túneles GRE

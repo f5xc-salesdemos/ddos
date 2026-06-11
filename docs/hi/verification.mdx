@@ -1,7 +1,7 @@
 ---
 title: सत्यापन
 description: >-
-  BIG-IP पर GRE टनल और BGP कॉन्फ़िगरेशन का सत्यापन करें, और सामान्य समस्याओं का
+  BIG-IP पर GRE टनल और BGP कॉन्फ़िगरेशन को सत्यापित करें, और सामान्य समस्याओं का
   निवारण करें।
 sidebar:
   order: 6
@@ -16,7 +16,7 @@ i18n:
 
 #### टनल
 
-प्रत्येक यूनिट पर उसकी अपनी टनल के लिए चलाएँ:
+प्रत्येक यूनिट पर उसके अपने टनल के लिए चलाएं:
 
 ```shell title="tmsh"
 show net tunnels tunnel xc-ddos-c1t1-v4
@@ -36,16 +36,16 @@ list net tunnels tunnel xc-ddos-c1t1-v4 all-properties
 list net self xc-ddos-*
 ```
 
-#### पथ जाँच
+#### पाथ जाँच
 
 प्रत्येक यूनिट से:
 
 ```shell title="tmsh"
-# BIG-IP-A टनल
+# BIG-IP-A tunnels
 ping xXC_C1_T1_INNER_V4x source xBIGIP_C1_T1_INNER_V4x
 ping xXC_C2_T1_INNER_V4x source xBIGIP_C2_T1_INNER_V4x
 
-# BIG-IP-B टनल
+# BIG-IP-B tunnels
 ping xXC_C1_T2_INNER_V4x source xBIGIP_C1_T2_INNER_V4x
 ping xXC_C2_T2_INNER_V4x source xBIGIP_C2_T2_INNER_V4x
 ```
@@ -60,13 +60,13 @@ show ipv6 bgp summary
 show ip bgp
 show ipv6 bgp
 
-# BIG-IP-A नेबर
+# BIG-IP-A neighbors
 show ip bgp neighbors xXC_C1_T1_INNER_V4x
 show ip bgp neighbors xXC_C2_T1_INNER_V4x
 show ip bgp neighbors xXC_C1_T1_INNER_V4x advertised-routes
 show ip bgp neighbors xXC_C1_T1_INNER_V4x received-routes
 
-# BIG-IP-B नेबर
+# BIG-IP-B neighbors
 show ip bgp neighbors xXC_C1_T2_INNER_V4x
 show ip bgp neighbors xXC_C2_T2_INNER_V4x
 show ip bgp neighbors xXC_C1_T2_INNER_V4x advertised-routes
@@ -79,23 +79,21 @@ show ipv6 route
 :::caution[समस्या निवारण चेकलिस्ट]
 यदि BGP स्थापित नहीं होता:
 
-1. सत्यापित करें कि GRE टनल चालू है: `show net tunnels tunnel` में
-   स्टेट `up` दिखना चाहिए।
+1. GRE टनल की स्थिति सत्यापित करें: `show net tunnels tunnel` में
+   स्थिति `up` दिखनी चाहिए।
 1. पुष्टि करें कि इनर सेल्फ IP पर `allow-service` में `tcp:179` शामिल है।
-1. टनल के माध्यम से रिमोट इनर IP को पिंग करें।
-1. जाँचें कि BGP पासवर्ड दोनों तरफ मेल खाता है (`NOTIFICATION`
-   त्रुटियों का सामान्य कारण)।
-1. सत्यापित करें कि prefix-lists और route-maps सही ढंग से लागू हैं।
+1. टनल के माध्यम से रिमोट इनर IP को ping करें।
+1. जाँचें कि दोनों ओर BGP पासवर्ड मेल खाता है (`NOTIFICATION` त्रुटियों का सामान्य कारण)।
+1. सत्यापित करें कि prefix-lists और route-maps सही तरीके से लागू हैं।
 1. अंतिम त्रुटि/रीसेट कारण के लिए `show ip bgp neighbors <IP>` जाँचें।
-1. प्रत्येक HA यूनिट पर, सत्यापित करें कि उस यूनिट की अपनी टनल चालू हैं और
-   उसके अपने BGP नेबर कॉन्फ़िगर हैं (दूसरी यूनिट के नहीं)।
+1. प्रत्येक HA यूनिट पर, सत्यापित करें कि यूनिट के अपने टनल सक्रिय हैं और उसके अपने BGP नेबर कॉन्फ़िगर किए गए हैं (दूसरी यूनिट के नहीं)।
 :::
 
-### XC कंसोल
+### F5 XC कंसोल
 
 **DDoS and Transit Services >
-[DDoS Protection > Visibility](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)** पर नेविगेट करें और देखें:
+[DDoS Protection > Visibility](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)** पर जाएं और देखें:
 
 - नेटवर्क, ज़ोन, एप्लिकेशन के अनुसार ट्रैफ़िक।
 - अवरुद्ध बनाम अनुमत ट्रैफ़िक।
-- हमले का विवरण और स्क्रबिंग कार्रवाइयाँ।
+- अटैक विवरण और स्क्रबिंग क्रियाएं।

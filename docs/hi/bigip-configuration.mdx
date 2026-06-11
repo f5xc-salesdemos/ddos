@@ -1,7 +1,7 @@
 ---
 title: BIG-IP कॉन्फ़िगरेशन
 description: >-
-  BIG-IP HA जोड़ियों पर GRE टनल, सेल्फ़ IP और BGP कॉन्फ़िगर करने के लिए tmsh और
+  BIG-IP HA पेयर पर GRE टनल, सेल्फ IPs और BGP कॉन्फ़िगर करने के लिए tmsh और
   imish कमांड।
 sidebar:
   order: 5
@@ -12,14 +12,12 @@ i18n:
 
 ## BIG-IP
 
-- (Route Domain 0 उदाहरण)
+- (रूट डोमेन 0 उदाहरण)
 
-नीचे दिए गए सभी कमांड BIG-IP पर **tmsh** में चलाए जाते हैं। ऑब्जेक्ट नाम
-और IP को आवश्यकतानुसार समायोजित करें।
+नीचे दिए गए सभी कमांड BIG-IP पर **tmsh** में चलाए जाते हैं। ऑब्जेक्ट नाम और IPs आवश्यकतानुसार समायोजित करें।
 
 BIG-IP पर सामान्य GRE टनल कॉन्फ़िगरेशन के लिए, देखें
-[Configuring a GRE Tunnel Using BIG-IP](https://community.f5.com/kb/technicalarticles/configuring-a-generic-routing-encapsulation-gre-tunnel-using-big-ip/289030)। Cloud के साथ प्रारंभिक
-राउटेड कॉन्फ़िगरेशन सेटअप के लिए, देखें [K000147949](https://my.f5.com/manage/s/article/K000147949)।
+[Configuring a GRE Tunnel Using BIG-IP](https://community.f5.com/kb/technicalarticles/configuring-a-generic-routing-encapsulation-gre-tunnel-using-big-ip/289030)। Cloud के साथ प्रारंभिक रूटेड कॉन्फ़िगरेशन सेटअप के लिए, देखें [K000147949](https://my.f5.com/manage/s/article/K000147949)।
 
 ### tmsh
 
@@ -28,13 +26,11 @@ BIG-IP पर सामान्य GRE टनल कॉन्फ़िगरे
 root@(bigip)(cfg-sync Standalone)(Active)(/Common)(tmos)#
 ```
 
-### आउटर सेल्फ़ IP
+### आउटर सेल्फ IPs
 
 GRE एंडपॉइंट
 
-ये प्रत्येक BIG-IP यूनिट पर वे IP हैं जो **GRE टनल
-एंडपॉइंट** के रूप में उपयोग किए जाते हैं, आमतौर पर एक्सटर्नल VLAN पर। प्रत्येक यूनिट का अपना
-नॉन-फ़्लोटिंग आउटर सेल्फ़ IP (`traffic-group-local-only`) होता है:
+ये प्रत्येक BIG-IP यूनिट पर वे IPs हैं जो **GRE टनल एंडपॉइंट** के रूप में उपयोग की जाती हैं, आमतौर पर बाहरी VLAN पर। प्रत्येक यूनिट का अपना नॉन-फ्लोटिंग आउटर सेल्फ IP (`traffic-group-local-only`) होता है:
 
 **BIG-IP-A:**
 
@@ -70,12 +66,9 @@ create net self xc-ddos-v6-self-b \
 
 ### GRE टनल
 
-प्रत्येक टनल एक BIG-IP यूनिट से Cloud
-स्क्रबिंग सेंटर एंडपॉइंट की ओर इंगित करती है। **प्रति यूनिट दो टनल** बनाएं (प्रत्येक
-भौगोलिक स्थान वाले स्क्रबिंग सेंटर के लिए एक) जिससे HA जोड़ी में कुल **चार लॉजिकल
-टनल** बनें:
+प्रत्येक टनल एक BIG-IP यूनिट से Cloud स्क्रबिंग सेंटर एंडपॉइंट की ओर इंगित करती है। HA पेयर में कुल **चार लॉजिकल टनल** के लिए प्रति यूनिट **दो टनल** बनाएं (प्रत्येक भू-स्थित स्क्रबिंग सेंटर के लिए एक):
 
-**Tunnel C1-T1 — BIG-IP-A से xCENTER_1x:**
+**टनल C1-T1 — BIG-IP-A से xCENTER_1x तक:**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c1t1-v4 \
@@ -89,7 +82,7 @@ create net tunnels tunnel xc-ddos-c1t1-v6 \
   remote-address xXC_C1_OUTER_V6x
 ```
 
-**Tunnel C2-T1 — BIG-IP-A से xCENTER_2x:**
+**टनल C2-T1 — BIG-IP-A से xCENTER_2x तक:**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c2t1-v4 \
@@ -103,7 +96,7 @@ create net tunnels tunnel xc-ddos-c2t1-v6 \
   remote-address xXC_C2_OUTER_V6x
 ```
 
-**Tunnel C1-T2 — BIG-IP-B से xCENTER_1x:**
+**टनल C1-T2 — BIG-IP-B से xCENTER_1x तक:**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c1t2-v4 \
@@ -117,7 +110,7 @@ create net tunnels tunnel xc-ddos-c1t2-v6 \
   remote-address xXC_C1_OUTER_V6x
 ```
 
-**Tunnel C2-T2 — BIG-IP-B से xCENTER_2x:**
+**टनल C2-T2 — BIG-IP-B से xCENTER_2x तक:**
 
 ```shell title="tmsh"
 create net tunnels tunnel xc-ddos-c2t2-v4 \
@@ -131,15 +124,11 @@ create net tunnels tunnel xc-ddos-c2t2-v6 \
   remote-address xXC_C2_OUTER_V6x
 ```
 
-टनल नाम (`xc-ddos-c1t1-v4`, आदि) मनमाने हैं; अपनी स्वयं की
-नामकरण परंपरा का उपयोग करें।
+टनल नाम (`xc-ddos-c1t1-v4`, आदि) मनमाने हैं; अपनी नामकरण परंपरा का उपयोग करें।
 
 ### टनल MTU सेट करें
 
-GRE एनकैप्सुलेशन ओवरहेड जोड़ता है (IPv4 आउटर के लिए 24 बाइट्स, IPv6
-आउटर के लिए 44 बाइट्स)। स्पष्ट MTU के बिना, 1500 बाइट्स के करीब पैकेट
-फ़्रैगमेंट होंगे या ड्रॉप हो जाएंगे। एनकैप्सुलेशन ओवरहेड को ध्यान में रखते हुए
-टनल MTU सेट करें:
+GRE एनकैप्सुलेशन ओवरहेड जोड़ता है (IPv4 आउटर के लिए 24 बाइट्स, IPv6 आउटर के लिए 44 बाइट्स)। स्पष्ट MTU के बिना, 1500 बाइट्स के निकट पैकेट फ्रैगमेंट हो जाएंगे या ड्रॉप हो जाएंगे। एनकैप्सुलेशन ओवरहेड को ध्यान में रखते हुए टनल MTU सेट करें:
 
 ```shell title="tmsh"
 modify net tunnels tunnel xc-ddos-c1t1-v4 mtu 1476
@@ -153,19 +142,12 @@ modify net tunnels tunnel xc-ddos-c2t2-v6 mtu 1456
 ```
 
 :::caution[पाथ MTU]
-ऊपर दिए गए मान आउटर नेटवर्क पर 1500-बाइट पाथ MTU मानते हैं।
-यदि आपका अपस्ट्रीम पाथ MTU छोटा है तो समायोजित करें। सुनिश्चित करें कि ICMP
-"destination unreachable / fragmentation needed" (type 3, code 4)
-किसी भी मध्यवर्ती डिवाइस पर **ब्लॉक नहीं** है ताकि Path MTU
-Discovery (PMTUD) सही ढंग से काम करे।
+उपरोक्त मान आउटर नेटवर्क पर 1500-बाइट पाथ MTU मानते हैं। यदि आपका अपस्ट्रीम पाथ MTU छोटा है तो समायोजित करें। सुनिश्चित करें कि ICMP "destination unreachable / fragmentation needed" (टाइप 3, कोड 4) किसी भी मध्यवर्ती डिवाइस पर **ब्लॉक नहीं** है ताकि Path MTU Discovery (PMTUD) सही ढंग से काम करे।
 :::
 
-### GRE एंटी-स्पूफ़िंग (अपस्ट्रीम ACL)
+### GRE एंटी-स्पूफिंग (अपस्ट्रीम ACLs)
 
-GRE (IP प्रोटोकॉल 47) प्रमाणीकरण प्रदान नहीं करता। जो कोई भी
-आउटर IP जोड़ी जानता है वह टनल में ट्रैफ़िक इंजेक्ट कर सकता है। अपस्ट्रीम
-राउटर या फ़ायरवॉल पर ACL लागू करें ताकि इनबाउंड GRE को केवल
-अपेक्षित Cloud स्क्रबिंग-सेंटर स्रोत IP तक सीमित किया जा सके:
+GRE (IP प्रोटोकॉल 47) प्रमाणीकरण प्रदान नहीं करता। जो कोई भी आउटर IP पेयर जानता है वह टनल में ट्रैफ़िक इंजेक्ट कर सकता है। इनबाउंड GRE को केवल अपेक्षित Cloud स्क्रबिंग-सेंटर स्रोत IPs तक सीमित करने के लिए अपस्ट्रीम राउटर या फ़ायरवॉल पर ACLs लागू करें:
 
 ```shell title="Cisco IOS"
 ! Example upstream router ACL (Cisco IOS style)
@@ -179,21 +161,14 @@ ip access-list extended ALLOW-XC-GRE
 ```
 
 :::note
-अपने राउटर प्लेटफ़ॉर्म के अनुसार सिंटैक्स को अनुकूलित करें। IPv6 GRE टनल के लिए
-IPv6 ACL पर भी यही सिद्धांत लागू होता है। BIG-IP-A
-(`xBIGIP_A_OUTER_V4x`) और BIG-IP-B (`xBIGIP_B_OUTER_V4x`)
-दोनों आउटर IP को GRE गंतव्य के रूप में अनुमति दी जानी चाहिए।
+अपने राउटर प्लेटफ़ॉर्म के लिए सिंटैक्स अनुकूलित करें। यही सिद्धांत IPv6 GRE टनल के लिए IPv6 ACLs पर भी लागू होता है। BIG-IP-A (`xBIGIP_A_OUTER_V4x`) और BIG-IP-B (`xBIGIP_B_OUTER_V4x`) दोनों के आउटर IPs को GRE डेस्टिनेशन के रूप में अनुमति दी जानी चाहिए।
 :::
 
-### इनर सेल्फ़-IP (BGP पीयरिंग)
+### इनर सेल्फ-IPs (BGP पीयरिंग)
 
-इनर IP एड्रेस (GRE टनल के अंदर) असाइन करें जो Cloud के साथ
-**BGP सेशन** बनाएंगे। पीयरिंग सेशन स्थापित होने के लिए `allow-service` में
-`tcp:179` (BGP) शामिल होना आवश्यक है। इनर सेल्फ़ IP पर
-`icmp:any` जोड़ने से टनल के माध्यम से PMTUD और रीचेबिलिटी
-परीक्षण सक्षम होता है:
+GRE टनल के अंदर इनर IP पते असाइन करें जो Cloud के साथ **BGP सत्र** बनाएंगे। पीयरिंग सत्र स्थापित करने के लिए `allow-service` में `tcp:179` (BGP) शामिल होना चाहिए। इनर सेल्फ IPs पर `icmp:any` जोड़ने से टनल के माध्यम से PMTUD और पहुंच परीक्षण सक्षम होता है:
 
-**Tunnel C1-T1 — BIG-IP-A से xCENTER_1x:**
+**टनल C1-T1 — BIG-IP-A से xCENTER_1x तक:**
 
 ```shell title="tmsh"
 create net self xc-ddos-c1t1-inner-v4 \
@@ -209,7 +184,7 @@ create net self xc-ddos-c1t1-inner-v6 \
   address xBIGIP_C1_T1_INNER_V6x/64
 ```
 
-**Tunnel C2-T1 — BIG-IP-A से xCENTER_2x:**
+**टनल C2-T1 — BIG-IP-A से xCENTER_2x तक:**
 
 ```shell title="tmsh"
 create net self xc-ddos-c2t1-inner-v4 \
@@ -225,7 +200,7 @@ create net self xc-ddos-c2t1-inner-v6 \
   address xBIGIP_C2_T1_INNER_V6x/64
 ```
 
-**Tunnel C1-T2 — BIG-IP-B से xCENTER_1x:**
+**टनल C1-T2 — BIG-IP-B से xCENTER_1x तक:**
 
 ```shell title="tmsh"
 create net self xc-ddos-c1t2-inner-v4 \
@@ -241,7 +216,7 @@ create net self xc-ddos-c1t2-inner-v6 \
   address xBIGIP_C1_T2_INNER_V6x/64
 ```
 
-**Tunnel C2-T2 — BIG-IP-B से xCENTER_2x:**
+**टनल C2-T2 — BIG-IP-B से xCENTER_2x तक:**
 
 ```shell title="tmsh"
 create net self xc-ddos-c2t2-inner-v4 \
@@ -259,17 +234,15 @@ create net self xc-ddos-c2t2-inner-v6 \
 
 ### BGP
 
-Route Domain 0 के लिए BGP कॉन्फ़िगर करने हेतु [imish](https://techdocs.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/big-ip-tmos-routing-administration-14-0-0/11.html) का उपयोग करें।
+रूट डोमेन 0 के लिए BGP कॉन्फ़िगर करने के लिए [imish](https://techdocs.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/big-ip-tmos-routing-administration-14-0-0/11.html) का उपयोग करें।
 
 :::note[प्रति-यूनिट कॉन्फ़िगरेशन]
-`imish` BGP कॉन्फ़िगरेशन प्रत्येक BIG-IP यूनिट के लिए स्थानीय होता है। प्रत्येक
-यूनिट केवल अपनी स्वयं की टनल के लिए नेबर कॉन्फ़िगर करती है:
+`imish` BGP कॉन्फ़िगरेशन प्रत्येक BIG-IP यूनिट के लिए स्थानीय है। प्रत्येक यूनिट केवल अपनी टनल के लिए नेबर कॉन्फ़िगर करती है:
 
 - **BIG-IP-A** C1-T1 और C2-T1 नेबर कॉन्फ़िगर करता है।
 - **BIG-IP-B** C1-T2 और C2-T2 नेबर कॉन्फ़िगर करता है।
 
-`router-id` प्रति यूनिट अद्वितीय होना चाहिए (प्रत्येक यूनिट का अपना आउटर
-सेल्फ़ IP उपयोग करें)।
+`router-id` प्रति यूनिट अद्वितीय होना चाहिए (प्रत्येक यूनिट का अपना आउटर सेल्फ IP उपयोग करें)।
 :::
 
 1. RD 0 के लिए imish में प्रवेश करें:
@@ -285,16 +258,12 @@ Route Domain 0 के लिए BGP कॉन्फ़िगर करने ह
    localhost.localdomain[0]# configure terminal
    ```
 
-1. उदाहरण BGP कॉन्फ़िगरेशन:
+1. BGP कॉन्फ़िगरेशन उदाहरण:
 
-:::caution[प्लेसहोल्डर मानों को बदलें]
-- `xCUSTOMER_ASNx` — ARIN (या समकक्ष RIR) के साथ पंजीकृत आपका सार्वजनिक ASN। राउटेड DDoS के लिए **सार्वजनिक ASN आवश्यक है**
-  क्योंकि Cloud आपके प्रीफ़िक्स को विश्व स्तर पर एनाउंस करेगा।
-  प्राइवेट ASN (64512-65534 / 4200000000-4294967294) केवल तभी
-  स्वीकार्य है जब SOC आपके डिप्लॉयमेंट के लिए स्पष्ट रूप से प्राइवेट-ASN पीयरिंग का समर्थन करता हो।
+:::caution[प्लेसहोल्डर मान बदलें]
+- `xCUSTOMER_ASNx` — ARIN (या समकक्ष RIR) के साथ पंजीकृत आपका सार्वजनिक ASN। रूटेड DDoS के लिए **सार्वजनिक ASN आवश्यक है** क्योंकि Cloud आपके प्रीफ़िक्स वैश्विक रूप से घोषित करेगा। निजी ASN (64512-65534 / 4200000000-4294967294) तभी स्वीकार्य है जब SOC स्पष्ट रूप से आपकी डिप्लॉयमेंट के लिए प्राइवेट-ASN पीयरिंग का समर्थन करे।
 - `xF5_XC_ASNx` — Cloud ASN (SOC द्वारा प्रदान किया गया)।
-- `xBGP_PASSWORDx` — सहमत BGP MD5 पासवर्ड (या Console
-  "default secret" से मिलान करें)। इस पासवर्ड को अन्य सेवाओं के लिए कभी पुन: उपयोग न करें।
+- `xBGP_PASSWORDx` — सहमत BGP MD5 पासवर्ड (या कंसोल "default secret" से मिलाएं)। इस पासवर्ड को अन्य सेवाओं के लिए दोबारा उपयोग न करें।
 :::
 
 **BIG-IP-A** (router-id `xBIGIP_A_OUTER_V4x`, नेबर C1-T1 + C2-T1):
@@ -421,35 +390,22 @@ route-map route-to-cloud-ipv6 permit 10
   set origin igp
 ```
 
-**प्रमुख BGP सेटिंग्स की व्याख्या:**
+**मुख्य BGP सेटिंग्स की व्याख्या:**
 
-- **`timers 10 30`** — हर 10 सेकंड में Keepalive, होल्ड टाइम 30 सेकंड। डिफ़ॉल्ट
-  (60 / 180) DDoS मिटिगेशन फ़ेलओवर के लिए बहुत धीमा है।
-  दोनों पक्षों से मिलान के लिए SOC के साथ टाइमर मानों का समन्वय करें।
+- **`timers 10 30`** — हर 10 सेकंड पर Keepalive, होल्ड टाइम 30 सेकंड। डिफ़ॉल्ट (60 / 180) DDoS शमन फेलओवर के लिए बहुत धीमा है। दोनों पक्षों से मिलान के लिए SOC के साथ टाइमर मान समन्वित करें।
 - **`ttl-security hops 1`** — GTSM सक्षम करता है
-  ([RFC 5082](https://datatracker.ietf.org/doc/html/rfc5082))। चूँकि BGP सेशन GRE
-  टनल पर सिंगल-हॉप हैं, यह इनकमिंग BGP पैकेट्स पर TTL = 255 की
-  आवश्यकता करके रिमोट BGP स्पूफ़िंग को रोकता है।
-- **`maximum-prefix 10 warning-only`** — गहन रक्षा सुरक्षा उपाय।
-  भले ही इनबाउंड प्रीफ़िक्स-लिस्ट सभी रूट्स को अस्वीकार करती है, यह
-  पीयर द्वारा अनपेक्षित रूप से प्रीफ़िक्स भेजने पर चेतावनी उत्पन्न करता है।
-- **`redistribute kernel`** — रूट-मैप के माध्यम से `null0` स्टैटिक रूट्स को
-  BGP में इंजेक्ट करता है। एक विकल्प स्पष्ट `network`
-  स्टेटमेंट का उपयोग करना है (जैसे `network xPROTECTED_PREFIX_V4x`), जो अधिक सटीक
-  हैं क्योंकि अन्य कर्नेल रूट्स की परवाह किए बिना केवल सटीक प्रीफ़िक्स ही एडवर्टाइज़ किया जाता है। दोनों तरीके काम करते हैं; लचीलेपन के लिए यहाँ सख्त रूट-मैप के साथ `redistribute kernel` दिखाया गया है।
+  ([RFC 5082](https://datatracker.ietf.org/doc/html/rfc5082))। चूंकि BGP सत्र GRE टनल पर सिंगल-हॉप हैं, यह इनकमिंग BGP पैकेट पर TTL = 255 की आवश्यकता करके रिमोट BGP स्पूफिंग को रोकता है।
+- **`maximum-prefix 10 warning-only`** — डिफेंस-इन-डेप्थ सुरक्षा। भले ही इनबाउंड प्रीफ़िक्स-लिस्ट सभी रूट अस्वीकार करती है, यह चेतावनी उत्पन्न करता है यदि पीयर अप्रत्याशित रूप से प्रीफ़िक्स भेजे।
+- **`redistribute kernel`** — रूट-मैप के माध्यम से `null0` स्टेटिक रूट को BGP में इंजेक्ट करता है। एक विकल्प स्पष्ट `network` स्टेटमेंट का उपयोग करना है (जैसे `network xPROTECTED_PREFIX_V4x`), जो अधिक सटीक हैं क्योंकि अन्य कर्नेल रूट की परवाह किए बिना केवल सटीक प्रीफ़िक्स विज्ञापित किया जाता है। दोनों दृष्टिकोण काम करते हैं; यहाँ लचीलेपन के लिए सख्त रूट-मैप के साथ `redistribute kernel` दिखाया गया है।
 
 :::tip[BFD (Bidirectional Forwarding Detection)]
-यदि आपका BIG-IP संस्करण GRE टनल पर BFD का समर्थन करता है, तो
-सब-सेकंड विफलता पहचान के लिए इसे सक्षम करें:
+यदि आपका BIG-IP संस्करण GRE टनल पर BFD का समर्थन करता है, तो सब-सेकंड विफलता पहचान के लिए इसे सक्षम करें:
 
 ```shell
 neighbor cloud fall-over bfd
 ```
 
-BFD अकेले BGP keepalive टाइमर्स की तुलना में तेज़ कन्वर्जेंस प्रदान करता है।
-सक्षम करने से पहले अपने BIG-IP संस्करण और SOC के साथ BFD समर्थन की पुष्टि करें।
+BFD अकेले BGP keepalive टाइमर की तुलना में तेज़ अभिसरण प्रदान करता है। सक्षम करने से पहले अपने BIG-IP संस्करण और SOC के साथ BFD समर्थन की पुष्टि करें।
 :::
 
-उच्चतर प्रशासनिक दूरी (201) वाले `null0` स्टैटिक रूट्स सुनिश्चित करते हैं कि प्रीफ़िक्स **कर्नेल रूटिंग टेबल** में मौजूद हों, ताकि उन्हें BGP के माध्यम से Cloud को
-पुनर्वितरित किया जा सके बिना गैर-हमले की स्थितियों में सामान्य रूटिंग को प्रभावित किए। यदि संरक्षित प्रीफ़िक्स पहले से ही रूटिंग टेबल में कम प्रशासनिक दूरी वाले किसी अन्य स्रोत से मौजूद है, तो `null0` रूट सक्रिय नहीं होगा और
-पुनर्वितरण विफल हो सकता है — कॉन्फ़िगरेशन के बाद `show ip route` से सत्यापित करें।
+उच्च प्रशासनिक दूरी (201) के साथ `null0` स्टेटिक रूट यह सुनिश्चित करते हैं कि प्रीफ़िक्स **कर्नेल राउटिंग टेबल** में मौजूद हों, ताकि गैर-हमले की स्थितियों में सामान्य राउटिंग को प्रभावित किए बिना BGP के माध्यम से Cloud को पुनर्वितरित किया जा सके। यदि संरक्षित प्रीफ़िक्स पहले से किसी अन्य स्रोत से कम प्रशासनिक दूरी के साथ राउटिंग टेबल में मौजूद है, तो `null0` रूट सक्रिय नहीं होगा और पुनर्वितरण विफल हो सकता है — कॉन्फ़िगरेशन के बाद `show ip route` से सत्यापित करें।

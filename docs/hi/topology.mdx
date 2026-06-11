@@ -11,21 +11,20 @@ i18n:
 ## टोपोलॉजी और पते
 
 **xDC_NAMEx** डेटा सेंटर के लिए कॉन्फ़िगरेशन
-जो Cloud स्क्रबिंग सेंटरों से कनेक्ट हो रहा है।
+जो Cloud स्क्रबिंग सेंटरों से जुड़ता है।
 
 :::note
 **ये उदाहरण मान हैं।** ऊपर दी गई तालिकाओं का उपयोग करके ग्राहक-विशिष्ट और
-SOC द्वारा प्रदान किए गए मानों से बदलें।
+SOC द्वारा प्रदत्त मानों से बदलें।
 
 संरक्षित प्रीफ़िक्स **सार्वजनिक रूप से रूटेबल होने चाहिए** (गैर-RFC 1918)।
-GRE आउटर एंडपॉइंट IP भी सार्वजनिक रूप से रूटेबल होने चाहिए जब टनल
-सार्वजनिक इंटरनेट से गुज़रती हैं; निजी कनेक्टिविटी (L2, प्राइवेट
-पीयरिंग) RFC 1918 एंडपॉइंट की अनुमति दे सकती है। उचित डॉक्यूमेंटेशन
+GRE आउटर एंडपॉइंट IPs भी सार्वजनिक रूप से रूटेबल होने चाहिए जब टनल
+सार्वजनिक इंटरनेट से गुज़रते हैं; निजी कनेक्टिविटी (L2, प्राइवेट
+पियरिंग) RFC 1918 एंडपॉइंट की अनुमति दे सकती है। उचित दस्तावेज़ीकरण
 पतों का उपयोग करने वाले उदाहरणों के लिए
 [K000147949](https://my.f5.com/manage/s/article/K000147949) देखें।
 
-रिडंडेंसी के लिए, **प्रति BIG-IP यूनिट 2 टनल** अलग-अलग
-भौगोलिक स्थानों पर स्थित स्क्रबिंग सेंटरों से बनाएं (HA जोड़ी के लिए कुल 4 टनल)।
+अनावश्यकता के लिए, विभिन्न भू-स्थित स्क्रबिंग सेंटरों पर **प्रति BIG-IP यूनिट 2 टनल** बनाएं (HA जोड़े के लिए कुल 4 टनल)।
 :::
 
 ```mermaid
@@ -61,106 +60,108 @@ flowchart LR
 
 ### XC
 
-**टनल C1-T1 — सेंटर 1 से BIG-IP-A:**
+**टनल C1-T1 — Center 1 से BIG-IP-A तक:**
 
-- GRE आउटर IP (टनल एंडपॉइंट के लिए):
+- GRE आउटर IPs (टनल एंडपॉइंट के लिए):
     - IPv4 SRC: `xXC_C1_OUTER_V4x/24`
     - IPv4 DST: `xBIGIP_A_OUTER_V4x/24`
     - IPv6 SRC: `xXC_C1_OUTER_V6x/64`
     - IPv6 DST: `xBIGIP_A_OUTER_V6x/64`
 
-- GRE इनर IP (BGP सत्र के लिए):
+- GRE इनर IPs (BGP सेशन के लिए):
     - IPv4: `xXC_C1_T1_INNER_V4x/30`
     - IPv6: `xXC_C1_T1_INNER_V6x/64`
 
-**टनल C1-T2 — सेंटर 1 से BIG-IP-B:**
+**टनल C1-T2 — Center 1 से BIG-IP-B तक:**
 
-- GRE आउटर IP (टनल एंडपॉइंट के लिए):
+- GRE आउटर IPs (टनल एंडपॉइंट के लिए):
     - IPv4 SRC: `xXC_C1_OUTER_V4x/24`
     - IPv4 DST: `xBIGIP_B_OUTER_V4x/24`
     - IPv6 SRC: `xXC_C1_OUTER_V6x/64`
     - IPv6 DST: `xBIGIP_B_OUTER_V6x/64`
 
-- GRE इनर IP (BGP सत्र के लिए):
+- GRE इनर IPs (BGP सेशन के लिए):
     - IPv4: `xXC_C1_T2_INNER_V4x/30`
     - IPv6: `xXC_C1_T2_INNER_V6x/64`
 
-**टनल C2-T1 — सेंटर 2 से BIG-IP-A:**
+**टनल C2-T1 — Center 2 से BIG-IP-A तक:**
 
-- GRE आउटर IP (टनल एंडपॉइंट के लिए):
+- GRE आउटर IPs (टनल एंडपॉइंट के लिए):
     - IPv4 SRC: `xXC_C2_OUTER_V4x/24`
     - IPv4 DST: `xBIGIP_A_OUTER_V4x/24`
     - IPv6 SRC: `xXC_C2_OUTER_V6x/64`
     - IPv6 DST: `xBIGIP_A_OUTER_V6x/64`
 
-- GRE इनर IP (BGP सत्र के लिए):
+- GRE इनर IPs (BGP सेशन के लिए):
     - IPv4: `xXC_C2_T1_INNER_V4x/30`
     - IPv6: `xXC_C2_T1_INNER_V6x/64`
 
-**टनल C2-T2 — सेंटर 2 से BIG-IP-B:**
+**टनल C2-T2 — Center 2 से BIG-IP-B तक:**
 
-- GRE आउटर IP (टनल एंडपॉइंट के लिए):
+- GRE आउटर IPs (टनल एंडपॉइंट के लिए):
     - IPv4 SRC: `xXC_C2_OUTER_V4x/24`
     - IPv4 DST: `xBIGIP_B_OUTER_V4x/24`
     - IPv6 SRC: `xXC_C2_OUTER_V6x/64`
     - IPv6 DST: `xBIGIP_B_OUTER_V6x/64`
 
-- GRE इनर IP (BGP सत्र के लिए):
+- GRE इनर IPs (BGP सेशन के लिए):
     - IPv4: `xXC_C2_T2_INNER_V4x/30`
     - IPv6: `xXC_C2_T2_INNER_V6x/64`
 
-:::note[इनर (ट्रांज़िट) IP]
-इनर IP जैसे `10.10.10.0/30` RFC 1918 पतों का उपयोग करते हैं। यह
-सही है क्योंकि वे GRE टनल के अंदर एनकैप्सुलेटेड होते हैं और कभी
-सार्वजनिक इंटरनेट पर दिखाई नहीं देते। संरक्षित प्रीफ़िक्स हमेशा
-सार्वजनिक रूप से रूटेबल होने चाहिए; आउटर एंडपॉइंट IP सार्वजनिक रूप से रूटेबल होने चाहिए जब
-टनल सार्वजनिक इंटरनेट से गुज़रती हैं।
+:::note[इनर (ट्रांज़िट) IPs]
+`10.10.10.0/30` जैसे इनर IPs RFC 1918 पतों का उपयोग करते हैं। यह
+सही है क्योंकि वे GRE टनल के अंदर एनकैप्सुलेटेड होते हैं और कभी भी
+सार्वजनिक इंटरनेट पर नहीं दिखाई देते। संरक्षित प्रीफ़िक्स हमेशा
+सार्वजनिक रूप से रूटेबल होने चाहिए; आउटर एंडपॉइंट IPs सार्वजनिक रूप से रूटेबल होने चाहिए जब
+टनल सार्वजनिक इंटरनेट से गुज़रते हैं।
 :::
 
 :::note[IPv6 इनर लिंक]
-IPv6 इनर लिंक यहाँ सामान्य Cloud डिफ़ॉल्ट से मिलान करने के लिए /64 प्रीफ़िक्स का उपयोग करते हैं। पॉइंट-टू-पॉइंट लिंक के लिए, नेबर-डिस्कवरी एग्ज़ॉस्टन से बचने के लिए
-[RFC 6164](https://datatracker.ietf.org/doc/html/rfc6164) के अनुसार /127 को प्राथमिकता दी जाती है। यदि SOC टनल असाइनमेंट इसका समर्थन करता है तो /127 का उपयोग करें।
+IPv6 इनर लिंक यहाँ /64 प्रीफ़िक्स का उपयोग करते हैं ताकि सामान्य
+Cloud डिफ़ॉल्ट से मेल खाएं। पॉइंट-टू-पॉइंट लिंक के लिए, /127 को प्राथमिकता दी जाती है
+[RFC 6164](https://datatracker.ietf.org/doc/html/rfc6164) के अनुसार नेबर-डिस्कवरी एग्ज़ॉशन से बचने के लिए। /127
+का उपयोग करें यदि SOC टनल असाइनमेंट इसे सपोर्ट करता है।
 :::
 
 ### BIG-IP
 
 **BIG-IP-A** (आउटर IP `xBIGIP_A_OUTER_V4x` / `xBIGIP_A_OUTER_V6x`):
 
-- GRE आउटर IP:
+- GRE आउटर IPs:
     - IPv4 SRC: `xBIGIP_A_OUTER_V4x/24`
-    - IPv4 DST (सेंटर 1): `xXC_C1_OUTER_V4x/24`
-    - IPv4 DST (सेंटर 2): `xXC_C2_OUTER_V4x/24`
+    - IPv4 DST (Center 1): `xXC_C1_OUTER_V4x/24`
+    - IPv4 DST (Center 2): `xXC_C2_OUTER_V4x/24`
     - IPv6 SRC: `xBIGIP_A_OUTER_V6x/64`
-    - IPv6 DST (सेंटर 1): `xXC_C1_OUTER_V6x/64`
-    - IPv6 DST (सेंटर 2): `xXC_C2_OUTER_V6x/64`
+    - IPv6 DST (Center 1): `xXC_C1_OUTER_V6x/64`
+    - IPv6 DST (Center 2): `xXC_C2_OUTER_V6x/64`
 
-- GRE इनर IP — टनल C1-T1:
+- GRE इनर IPs — टनल C1-T1:
     - IPv4: `xBIGIP_C1_T1_INNER_V4x/30`
     - IPv6: `xBIGIP_C1_T1_INNER_V6x/64`
 
-- GRE इनर IP — टनल C2-T1:
+- GRE इनर IPs — टनल C2-T1:
     - IPv4: `xBIGIP_C2_T1_INNER_V4x/30`
     - IPv6: `xBIGIP_C2_T1_INNER_V6x/64`
 
 **BIG-IP-B** (आउटर IP `xBIGIP_B_OUTER_V4x` / `xBIGIP_B_OUTER_V6x`):
 
-- GRE आउटर IP:
+- GRE आउटर IPs:
     - IPv4 SRC: `xBIGIP_B_OUTER_V4x/24`
-    - IPv4 DST (सेंटर 1): `xXC_C1_OUTER_V4x/24`
-    - IPv4 DST (सेंटर 2): `xXC_C2_OUTER_V4x/24`
+    - IPv4 DST (Center 1): `xXC_C1_OUTER_V4x/24`
+    - IPv4 DST (Center 2): `xXC_C2_OUTER_V4x/24`
     - IPv6 SRC: `xBIGIP_B_OUTER_V6x/64`
-    - IPv6 DST (सेंटर 1): `xXC_C1_OUTER_V6x/64`
-    - IPv6 DST (सेंटर 2): `xXC_C2_OUTER_V6x/64`
+    - IPv6 DST (Center 1): `xXC_C1_OUTER_V6x/64`
+    - IPv6 DST (Center 2): `xXC_C2_OUTER_V6x/64`
 
-- GRE इनर IP — टनल C1-T2:
+- GRE इनर IPs — टनल C1-T2:
     - IPv4: `xBIGIP_C1_T2_INNER_V4x/30`
     - IPv6: `xBIGIP_C1_T2_INNER_V6x/64`
 
-- GRE इनर IP — टनल C2-T2:
+- GRE इनर IPs — टनल C2-T2:
     - IPv4: `xBIGIP_C2_T2_INNER_V4x/30`
     - IPv6: `xBIGIP_C2_T2_INNER_V6x/64`
 
-- संरक्षित प्रीफ़िक्स (Cloud को एडवर्टाइज़ किए गए):
+- संरक्षित प्रीफ़िक्स (Cloud को विज्ञापित):
     - IPv4: `xPROTECTED_NET_V4xxPROTECTED_CIDR_V4x`
     - IPv6: `xPROTECTED_PREFIX_V6x`
 

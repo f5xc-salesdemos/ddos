@@ -1,6 +1,6 @@
 ---
 title: 验证
-description: 在 BIG-IP 上验证 GRE 隧道和 BGP 配置，并排查常见问题。
+description: 验证 BIG-IP 上的 GRE 隧道和 BGP 配置，并排查常见问题。
 sidebar:
   order: 6
 i18n:
@@ -14,7 +14,7 @@ i18n:
 
 #### 隧道
 
-在每个设备上运行以下命令检查其自身的隧道：
+在每个节点上分别运行其对应的隧道命令：
 
 ```shell title="tmsh"
 show net tunnels tunnel xc-ddos-c1t1-v4
@@ -28,29 +28,29 @@ show net tunnels tunnel xc-ddos-c2t2-v6
 list net tunnels tunnel xc-ddos-c1t1-v4 all-properties
 ```
 
-#### Self IP
+#### 自身 IP
 
 ```shell title="tmsh"
 list net self xc-ddos-*
 ```
 
-#### 路径检查
+#### 路径检测
 
-从每个设备执行：
+在每个节点上执行：
 
 ```shell title="tmsh"
-# BIG-IP-A tunnels
+# BIG-IP-A 隧道
 ping xXC_C1_T1_INNER_V4x source xBIGIP_C1_T1_INNER_V4x
 ping xXC_C2_T1_INNER_V4x source xBIGIP_C2_T1_INNER_V4x
 
-# BIG-IP-B tunnels
+# BIG-IP-B 隧道
 ping xXC_C1_T2_INNER_V4x source xBIGIP_C1_T2_INNER_V4x
 ping xXC_C2_T2_INNER_V4x source xBIGIP_C2_T2_INNER_V4x
 ```
 
 #### BGP
 
-在每个设备的 imish 中执行：
+在每个节点的 imish 中执行：
 
 ```shell title="imish"
 show ip bgp summary
@@ -58,13 +58,13 @@ show ipv6 bgp summary
 show ip bgp
 show ipv6 bgp
 
-# BIG-IP-A neighbors
+# BIG-IP-A 邻居
 show ip bgp neighbors xXC_C1_T1_INNER_V4x
 show ip bgp neighbors xXC_C2_T1_INNER_V4x
 show ip bgp neighbors xXC_C1_T1_INNER_V4x advertised-routes
 show ip bgp neighbors xXC_C1_T1_INNER_V4x received-routes
 
-# BIG-IP-B neighbors
+# BIG-IP-B 邻居
 show ip bgp neighbors xXC_C1_T2_INNER_V4x
 show ip bgp neighbors xXC_C2_T2_INNER_V4x
 show ip bgp neighbors xXC_C1_T2_INNER_V4x advertised-routes
@@ -75,22 +75,22 @@ show ipv6 route
 ```
 
 :::caution[故障排查清单]
-如果 BGP 无法建立连接：
+若 BGP 无法建立连接，请按以下步骤检查：
 
-1. 验证 GRE 隧道是否已启动：`show net tunnels tunnel` 应显示状态为 `up`。
-1. 确认内部 Self IP 上的 `allow-service` 包含 `tcp:179`。
+1. 验证 GRE 隧道是否正常运行：`show net tunnels tunnel` 应显示状态为 `up`。
+1. 确认内部自身 IP 的 `allow-service` 中包含 `tcp:179`。
 1. 通过隧道 ping 远端内部 IP。
-1. 检查两端的 BGP 密码是否匹配（这是 `NOTIFICATION` 错误的常见原因）。
-1. 验证 prefix-list 和 route-map 是否正确应用。
-1. 检查 `show ip bgp neighbors <IP>` 以获取最后的错误/重置原因。
-1. 在每个 HA 设备上，验证该设备自身的隧道是否已启动，以及其自身的 BGP 邻居是否已配置（而非另一台设备的）。
+1. 检查两端 BGP 密码是否一致（这是导致 `NOTIFICATION` 错误的常见原因）。
+1. 验证前缀列表和路由映射是否已正确应用。
+1. 通过 `show ip bgp neighbors <IP>` 查看最后一次错误或重置的原因。
+1. 在每个 HA 节点上，确认该节点自身的隧道处于正常运行状态，且已配置其自身的 BGP 邻居（而非另一节点的配置）。
 :::
 
 ### XC 控制台
 
 导航至 **DDoS and Transit Services >
-[DDoS Protection > Visibility](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)** 可查看：
+[DDoS Protection > Visibility](https://docs.cloud.f5.com/docs-v2/ddos-and-transit-services/how-tos/network-firewall/l3l4-ddos-mitigation)**，可查看以下信息：
 
-- 按网络、区域、应用分类的流量。
-- 被阻止与被允许的流量。
-- 攻击详情和清洗操作。
+- 按网络、区域、应用程序划分的流量。
+- 已拦截与已放行的流量。
+- 攻击详情及清洗操作。
